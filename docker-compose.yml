@@ -1,0 +1,102 @@
+version: '3.7'
+services:
+  redis:
+    image: redis:alpine
+    restart: always
+    volumes:
+      - redis-data:/data
+    entrypoint: redis-server --appendonly yes
+  impresso-middle-layer:
+    image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
+    restart: always
+    environment: 
+      NODE_ENV: docker
+      # Uncomment if you want to debug the API
+      # DEBUG: impresso*
+    depends_on:
+      - redis
+      - mysql-tunnel
+    volumes:
+      - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
+      - middle-layer-cache:/impresso-middle-layer/data
+  impresso-middle-layer-update-cache:
+    # Updates cache files expected by middle layer. They do not change often
+    # so until this is refactored it is fine to run it on docker compose "up" or manually.
+    image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
+    environment: 
+      NODE_ENV: docker
+    depends_on:
+      - mysql-tunnel
+    volumes:
+      - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
+      - middle-layer-cache:/impresso-middle-layer/data
+    entrypoint:  >
+      /bin/sh -c "echo 'Updating newspapers:' &&
+                  (node scripts/update-newspapers.js || true) && 
+                  echo 'Updating topics:' &&
+                  (node scripts/update-topics.js || true) &&
+                  echo 'Updating years:' &&
+                  (node scripts/update-years.js || true)"
+  mysql-tunnel:
+    image: kroniak/ssh-client
+    restart: always
+    volumes:
+      - ./config/ssh:/root/.ssh
+    command: ssh -N impresso-mysql-tunnel
+  impresso-user-admin:
+    image: impresso/impresso-user-admin:${IMPRESSO_USER_ADMIN_TAG}
+    restart: always
+    environment:
+      ENV: docker
+    depends_on:
+      - mysql-tunnel
+    volumes:
+      - ./config/impresso-user-admin.env:/impresso-user-admin/.docker.env
+    command: python ./manage.py runserver 0.0.0.0:8000
+  impresso-celery:
+    image: impresso/impresso-user-admin:${IMPRESSO_USER_ADMIN_TAG}
+    restart: always
+    environment:
+      ENV: docker
+    depends_on:
+      - mysql-tunnel
+    volumes:
+      - ./config/impresso-user-admin.env:/impresso-user-admin/.docker.env
+      - impresso-user-media:/impresso-user-admin/media
+    command: celery -A impresso worker -l info
+  impresso-frontend:
+    image: impresso/impresso-frontend:${IMPRESSO_FRONTEND_TAG}
+    volumes:
+      - frontend-app-files:/impresso-frontend-files
+    # Every time impresso-frontend container launches just copy static files
+    # from the files directory in the container to the mounted `frontend-app-files`
+    # directory which is also mounted to `nginx`. This is where `nginx` will be
+    # looking for these files. Also remove the old files before copying the new ones.
+    command: >
+      /bin/sh -c "rm -rf /impresso-frontend-files/* &&
+                  echo 'Files in /impresso-fronted :' && 
+                  ls -lat /impresso-frontend/ &&
+                  cp -r /impresso-frontend/* /impresso-frontend-files/ &&
+                  echo 'Files in /impresso-frontend-files :' &&
+                  ls -lat /impresso-frontend-files/"
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - 80:80
+    depends_on:
+      - impresso-middle-layer
+      - impresso-user-admin
+      - impresso-frontend
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/conf.d/default.conf
+      - frontend-app-files:/opt/impresso-frontend
+      - impresso-user-media:/opt/impresso-user-media
+    # Uncomment the line below if nginx crashes because of incorrect configuration
+    # This will make nginx print debug info
+    # command: [nginx-debug, '-g', 'daemon off;']
+volumes:
+  frontend-app-files:
+  redis-data:
+  impresso-user-media:
+  middle-layer-cache:

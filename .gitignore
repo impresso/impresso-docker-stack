@@ -1,0 +1,4 @@
+config
+*.tar.bz2
+*.tar.gz
+*.zip
