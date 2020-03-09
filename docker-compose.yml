@@ -36,7 +36,9 @@ services:
                   echo 'Updating topics:' &&
                   (node scripts/update-topics.js || true) &&
                   echo 'Updating years:' &&
-                  (node scripts/update-years.js || true)"
+                  (node scripts/update-years.js || true) &&
+                  echo 'Updating facet ranges:' &&
+                  (node scripts/update-facet-ranges.js || true)"
   mysql-tunnel:
     image: kroniak/ssh-client
     restart: always
