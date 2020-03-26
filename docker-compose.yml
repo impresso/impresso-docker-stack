@@ -9,7 +9,7 @@ services:
   impresso-middle-layer:
     image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
     restart: always
-    environment: 
+    environment:
       NODE_ENV: docker
       # Uncomment if you want to debug the API
       # DEBUG: impresso*
@@ -23,7 +23,7 @@ services:
     # Updates cache files expected by middle layer. They do not change often
     # so until this is refactored it is fine to run it on docker compose "up" or manually.
     image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
-    environment: 
+    environment:
       NODE_ENV: docker
     depends_on:
       - mysql-tunnel
@@ -32,13 +32,15 @@ services:
       - middle-layer-cache:/impresso-middle-layer/data
     entrypoint:  >
       /bin/sh -c "echo 'Updating newspapers:' &&
-                  (node scripts/update-newspapers.js || true) && 
+                  (node scripts/update-newspapers.js || true) &&
                   echo 'Updating topics:' &&
                   (node scripts/update-topics.js || true) &&
                   echo 'Updating years:' &&
                   (node scripts/update-years.js || true) &&
                   echo 'Updating facet ranges:' &&
-                  (node scripts/update-facet-ranges.js || true)"
+                  (node scripts/update-facet-ranges.js || true) &&
+                  echo 'Updating Topic Graph:' &&
+                  (node scripts/update-topics-positions.js || true)"
   mysql-tunnel:
     image: kroniak/ssh-client
     restart: always
@@ -76,7 +78,7 @@ services:
     # looking for these files. Also remove the old files before copying the new ones.
     command: >
       /bin/sh -c "rm -rf /impresso-frontend-files/* &&
-                  echo 'Files in /impresso-fronted :' && 
+                  echo 'Files in /impresso-fronted :' &&
                   ls -lat /impresso-frontend/ &&
                   cp -r /impresso-frontend/* /impresso-frontend-files/ &&
                   echo 'Files in /impresso-frontend-files :' &&
