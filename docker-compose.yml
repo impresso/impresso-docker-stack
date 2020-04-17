@@ -68,6 +68,15 @@ services:
       - ./config/impresso-user-admin.env:/impresso-user-admin/.docker.env
       - impresso-user-media:/impresso-user-admin/media
     command: celery -A impresso worker -l info
+  impresso-recsys:
+    image: impresso/impresso-recsys:${IMPRESSO_RECSYS_TAG}
+    restart: always
+    environment:
+      DJANGO_SETTINGS_MODULE: impresso_recsys.docker_settings
+    expose:
+      - "8000"
+    volumes:
+      - ./config/recsys_config.py:/app/impresso_recsys/docker_settings.py
   impresso-frontend:
     image: impresso/impresso-frontend:${IMPRESSO_FRONTEND_TAG}
     volumes:
