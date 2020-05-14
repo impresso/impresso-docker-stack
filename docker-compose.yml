@@ -41,6 +41,21 @@ services:
                   (node scripts/update-facet-ranges.js || true) &&
                   echo 'Updating Topic Graph:' &&
                   (node scripts/update-topics-positions.js || true)"
+  impresso-middle-layer-update-related-topics:
+    # Updates related topics cache files expected by middle layer. 
+    # It's a long running script (takes about 30-40 minutes). It should be run
+    # Every time Solr data changes.
+    image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
+    environment:
+      NODE_ENV: docker
+    depends_on:
+      - mysql-tunnel
+    volumes:
+      - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
+      - middle-layer-cache:/impresso-middle-layer/data
+    entrypoint:  >
+      /bin/sh -c "echo 'Updating related topics:' &&
+                  (node scripts/update-topics-related.js || true)"
   mysql-tunnel:
     image: kroniak/ssh-client
     restart: always
