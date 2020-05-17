@@ -38,11 +38,9 @@ services:
                   echo 'Updating years:' &&
                   (node scripts/update-years.js || true) &&
                   echo 'Updating facet ranges:' &&
-                  (node scripts/update-facet-ranges.js || true) &&
-                  echo 'Updating Topic Graph:' &&
-                  (node scripts/update-topics-positions.js || true)"
+                  (node scripts/update-facet-ranges.js || true)"
   impresso-middle-layer-update-related-topics:
-    # Updates related topics cache files expected by middle layer. 
+    # Updates related topics cache files expected by middle layer.
     # It's a long running script (takes about 30-40 minutes). It should be run
     # Every time Solr data changes.
     image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
@@ -55,7 +53,10 @@ services:
       - middle-layer-cache:/impresso-middle-layer/data
     entrypoint:  >
       /bin/sh -c "echo 'Updating related topics:' &&
-                  (node scripts/update-topics-related.js || true)"
+                  (node scripts/update-topics-related.js || true) &&
+                  echo 'Updating Topic Graph:' &&
+                  (node scripts/update-topics-positions.js || true)"
+
   mysql-tunnel:
     image: kroniak/ssh-client
     restart: always
