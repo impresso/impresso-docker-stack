@@ -25,6 +25,11 @@ Docker compose expects several files located in `config` directory in this folde
  * `impresso-user-admin.env` - admin dashboard and celery tasks app configuration
  * `nginx.conf` - nginx configuration
  * `ssh/config` - ssh tunnel configuration (plus key files in `ssh` folder if needed)
+ * `recsys_config.py` - collections recommender system configuration
+
+We provide a sample set of files in `config_example`. Fields that need to be replaced (mostly hostnames, usernames and passwords) are marked with `[!!!REPLACE]` string.
+
+A special note about the database. Our setup assumes the database is accessed via an SSH tunnel to the database host. If the database port is accessible directly, you can simplify the configuration by setting the db hostname, port and credentials in the relevant config files, commenting out the `mysql-tunnel` section in `docker-compose.yml`. In this case you also do not need the files in the `config/ssh` folder, those are used for the DB tunnel only.
 
 # Apps versions
 
