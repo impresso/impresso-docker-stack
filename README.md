@@ -3,10 +3,11 @@
 Running Impresso app stack in docker compose:
 
 ```shell
+cp .env.example .env
 docker-compose -p impresso up
 ```
 
-Running in production (detached mode):
+Running in production (detached mode), check the contents of your `.env` file if any:
 
 ```shell
 docker-compose -p impresso up -d
@@ -16,6 +17,8 @@ Reading logs in production:
 ```shell
 docker-compose -p impresso logs -f
 ```
+
+The `.env.example` contains `latest` images of the services in docker-compose and it is for development purposes.
 
 # Configuration
 
