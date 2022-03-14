@@ -3,10 +3,11 @@
 Running Impresso app stack in docker compose:
 
 ```shell
+cp .env.example .env
 docker-compose -p impresso up
 ```
 
-Running in production (detached mode):
+Running in production (detached mode), check the contents of your `.env` file if any:
 
 ```shell
 docker-compose -p impresso up -d
@@ -16,6 +17,8 @@ Reading logs in production:
 ```shell
 docker-compose -p impresso logs -f
 ```
+
+The `.env.example` contains `latest` images of the services in docker-compose and it is for development purposes.
 
 # Configuration
 
@@ -68,4 +71,47 @@ When building docker container for the app make sure:
  * `MIDDLELAYER_API_PATH` in `prod.env.js` is set to `'"/api"'` (assuming that middle layer API base URL in `nginx` configuration is `/api`)
  * `MIDDLELAYER_API_SOCKET_PATH` in `prod.env.js` is set to `'"/api/socket.io/"'` (assuming that middle layer API base URL in `nginx` configuration is `/api`)
  * `MIDDLELAYER_MEDIA_PATH`  in `prod.env.js` is set to `'"/api/media"'` (assuming that the api base URL in `nginx` configuration is `/api`)
- 
+
+
+### Scripts, to be executed only when data changes.
+
+```
+impresso-middle-layer-update-cache:
+  # Updates cache files expected by middle layer. They do not change often
+  # so until this is refactored it is fine to run it on docker compose "up" or manually.
+  image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
+  environment:
+    NODE_ENV: docker
+  depends_on:
+    - mysql-tunnel
+  volumes:
+    - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
+    - middle-layer-cache:/impresso-middle-layer/data
+  entrypoint:  >
+    /bin/sh -c "echo 'Updating newspapers:' &&
+                (node scripts/update-newspapers.js || true) &&
+                echo 'Updating topics:' &&
+                (node scripts/update-topics.js || true) &&
+                echo 'Updating years:' &&
+                (node scripts/update-years.js || true) &&
+                echo 'Updating facet ranges:' &&
+                (node scripts/update-facet-ranges.js || true)"
+impresso-middle-layer-update-related-topics:
+  # Updates related topics cache files expected by middle layer.
+  # It's a long running script (takes about 30-40 minutes). It should be run
+  # Every time Solr data changes.
+  image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
+  environment:
+    NODE_ENV: docker
+    DEBUG: impresso/scripts*
+  depends_on:
+    - mysql-tunnel
+  volumes:
+    - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
+    - middle-layer-cache:/impresso-middle-layer/data
+  entrypoint:  >
+    /bin/sh -c "echo 'Updating related topics:' &&
+                (node scripts/update-topics-related.js || true) &&
+                echo 'Updating Topic Graph:' &&
+                (node scripts/update-topics-positions.js || true)"
+```

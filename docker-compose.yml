@@ -12,51 +12,13 @@ services:
     environment:
       NODE_ENV: docker
       # Uncomment if you want to debug the API
-      # DEBUG: impresso*
+      DEBUG: "impresso*"
     depends_on:
       - redis
       - mysql-tunnel
     volumes:
       - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
       - middle-layer-cache:/impresso-middle-layer/data
-  impresso-middle-layer-update-cache:
-    # Updates cache files expected by middle layer. They do not change often
-    # so until this is refactored it is fine to run it on docker compose "up" or manually.
-    image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
-    environment:
-      NODE_ENV: docker
-    depends_on:
-      - mysql-tunnel
-    volumes:
-      - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
-      - middle-layer-cache:/impresso-middle-layer/data
-    entrypoint:  >
-      /bin/sh -c "echo 'Updating newspapers:' &&
-                  (node scripts/update-newspapers.js || true) &&
-                  echo 'Updating topics:' &&
-                  (node scripts/update-topics.js || true) &&
-                  echo 'Updating years:' &&
-                  (node scripts/update-years.js || true) &&
-                  echo 'Updating facet ranges:' &&
-                  (node scripts/update-facet-ranges.js || true)"
-  impresso-middle-layer-update-related-topics:
-    # Updates related topics cache files expected by middle layer.
-    # It's a long running script (takes about 30-40 minutes). It should be run
-    # Every time Solr data changes.
-    image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
-    environment:
-      NODE_ENV: docker
-    depends_on:
-      - mysql-tunnel
-    volumes:
-      - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
-      - middle-layer-cache:/impresso-middle-layer/data
-    entrypoint:  >
-      /bin/sh -c "echo 'Updating related topics:' &&
-                  (node scripts/update-topics-related.js || true) &&
-                  echo 'Updating Topic Graph:' &&
-                  (node scripts/update-topics-positions.js || true)"
-
   mysql-tunnel:
     image: kroniak/ssh-client
     restart: always
@@ -69,16 +31,20 @@ services:
     environment:
       ENV: docker
     depends_on:
+      - redis
       - mysql-tunnel
     volumes:
       - ./config/impresso-user-admin.env:/impresso-user-admin/.docker.env
     command: python ./manage.py runserver 0.0.0.0:8000
+    ports:
+      - 8088:8000
   impresso-celery:
     image: impresso/impresso-user-admin:${IMPRESSO_USER_ADMIN_TAG}
     restart: always
     environment:
       ENV: docker
     depends_on:
+      - redis
       - mysql-tunnel
     volumes:
       - ./config/impresso-user-admin.env:/impresso-user-admin/.docker.env

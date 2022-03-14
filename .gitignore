@@ -4,3 +4,5 @@ config
 *.zip
 config_preprod
 config_prod
+.DS_Store
+.env
