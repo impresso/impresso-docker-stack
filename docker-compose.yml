@@ -31,6 +31,7 @@ services:
     environment:
       ENV: docker
     depends_on:
+      - redis
       - mysql-tunnel
     volumes:
       - ./config/impresso-user-admin.env:/impresso-user-admin/.docker.env
@@ -43,6 +44,7 @@ services:
     environment:
       ENV: docker
     depends_on:
+      - redis
       - mysql-tunnel
     volumes:
       - ./config/impresso-user-admin.env:/impresso-user-admin/.docker.env
