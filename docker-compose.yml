@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 services:
   redis:
     image: redis:alpine
@@ -74,6 +74,24 @@ services:
                   cp -r /impresso-frontend/* /impresso-frontend-files/ &&
                   echo 'Files in /impresso-frontend-files :' &&
                   ls -lat /impresso-frontend-files/"
+  impresso-iiif-widget:
+    image: impresso/impresso-iiif-widget:${IMPRESSO_IIIF_WIDGET_TAG}
+    depends_on:
+      - nginx
+    volumes:
+      - iiif-widget-app-files:/app_files:z
+    # Every time container is launched just copy static files
+    # from the files directory in the container to the mounted `frontend-app-files`
+    # directory which is also mounted to `nginx`. This is where `nginx` will be
+    # looking for these files. Also remove the old files before copying the new ones.
+    command: >
+      /bin/sh -c "rm -rf /app_files/* &&
+                  echo 'Files in /app_files :' &&
+                  ls -lat /app_files/ &&
+                  cp -r /app/* /app_files/ &&
+                  echo 'Files in /app_files :' &&
+                  ls -lat /app_files/"
+
   nginx:
     image: nginx:alpine
     restart: always
@@ -87,11 +105,13 @@ services:
       - ./config/nginx.conf:/etc/nginx/conf.d/default.conf
       - frontend-app-files:/opt/impresso-frontend
       - impresso-user-media:/opt/impresso-user-media
+      - iiif-widget-app-files:/opt/impresso-iiif-widget
     # Uncomment the line below if nginx crashes because of incorrect configuration
     # This will make nginx print debug info
     # command: [nginx-debug, '-g', 'daemon off;']
 volumes:
   frontend-app-files:
+  iiif-widget-app-files:
   redis-data:
   impresso-user-media:
   middle-layer-cache:
