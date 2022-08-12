@@ -1,4 +1,4 @@
-version: "3.7"
+version: '3.7'
 services:
   redis:
     image: redis:alpine
@@ -12,13 +12,25 @@ services:
     environment:
       NODE_ENV: docker
       # Uncomment if you want to debug the API
-      DEBUG: "impresso*"
+      DEBUG: 'impresso*'
     depends_on:
       - redis
       - mysql-tunnel
     volumes:
       - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
       - middle-layer-cache:/impresso-middle-layer/data
+  impresso-public-api:
+    image: impresso/impresso-public-api:${IMPRESSO_PUBLIC_API_TAG}
+    restart: always
+    depends_on:
+      - redis
+      - mysql-tunnel
+    volumes:
+      - ./config/impresso-public-api.json:/impresso-public-api/config/docker.json
+    environment:
+      NODE_ENV: docker
+      # Uncomment if you want to debug the API
+      DEBUG: 'impresso*'
   mysql-tunnel:
     image: kroniak/ssh-client
     restart: always
@@ -56,7 +68,7 @@ services:
     environment:
       DJANGO_SETTINGS_MODULE: impresso_recsys.docker_settings
     expose:
-      - "8000"
+      - '8000'
     volumes:
       - ./config/recsys_config.py:/app/impresso_recsys/docker_settings.py
   impresso-frontend:
