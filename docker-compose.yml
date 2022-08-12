@@ -27,6 +27,7 @@ services:
       - mysql-tunnel
     volumes:
       - ./config/impresso-public-api.json:/impresso-public-api/config/docker.json
+      - ./data/impresso-public-api:/impresso-public-api/data
     environment:
       NODE_ENV: docker
       # Uncomment if you want to debug the API
