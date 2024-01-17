@@ -105,8 +105,6 @@ services:
                   echo 'Files in /app_files :' &&
                   ls -lat /app_files/"
   impresso-github-io-v1:
-    profiles:
-      - cli
     image: impresso/impresso-github-io:v1.0.0
     volumes:
       - impresso-github-io-v1-files:/app/_site
