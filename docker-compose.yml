@@ -37,7 +37,7 @@ services:
     restart: always
     volumes:
       - ./config/ssh:/root/.ssh
-    command: chown root /root/.ssh/config && ssh -N impresso-mysql-tunnel
+    command: bash -c "chown root /root/.ssh/config && ssh -N impresso-mysql-tunnel"
   impresso-user-admin:
     image: impresso/impresso-user-admin:${IMPRESSO_USER_ADMIN_TAG}
     restart: always
