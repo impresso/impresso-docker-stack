@@ -107,9 +107,9 @@ services:
   impresso-github-io-v1:
     image: impresso/impresso.github.io:v1.0.0
     volumes:
-      - impresso-github-io-v1-files:/app/_site
+      - impresso-github-io-v1-files:/impresso.github.io-v1.0.0
     command: >
-      /bin/sh -c "ls -lat /_site/"
+      /bin/sh -c "ls -lat /impresso.github.io-v1.0.0/"
   nginx:
     image: nginx:alpine
     restart: always
