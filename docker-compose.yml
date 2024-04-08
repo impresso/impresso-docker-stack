@@ -20,14 +20,14 @@ services:
       - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
       - middle-layer-cache:/impresso-middle-layer/data
   impresso-public-api:
-    image: impresso/impresso-public-api:${IMPRESSO_PUBLIC_API_TAG}
+    image: impresso/impresso-middle-layer:upgrade
     restart: always
     depends_on:
       - redis
       - mysql-tunnel
     volumes:
-      - ./config/impresso-public-api.json:/impresso-public-api/config/docker.json
-      - ./data/impresso-public-api:/impresso-public-api/data
+      - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
+      - ./data/impresso-public-api:/impresso-middle-layer/data
     environment:
       NODE_ENV: docker
       # Uncomment if you want to debug the API
@@ -106,8 +106,8 @@ services:
                   ls -lat /app_files/"
   impresso-github-io-v1:
     image: impresso/impresso.github.io:v1.0.0
-    volumes:
-      - impresso-github-io-v1-files:/impresso.github.io-v1.0.0:z
+    # volumes:
+    #   - impresso-github-io-v1-files:/impresso.github.io-v1.0.0:z
     command: >
       /bin/sh -c "echo 'Files in /impresso.github.io-v1.0.0/:' && ls -lat /impresso.github.io-v1.0.0/"
   nginx:
