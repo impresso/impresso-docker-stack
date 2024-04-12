@@ -19,15 +19,15 @@ services:
     volumes:
       - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
       - middle-layer-cache:/impresso-middle-layer/data
-  impresso-public-api:
-    image: impresso/impresso-middle-layer:upgrade
+  impresso-middle-layer-public:
+    image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
     restart: always
     depends_on:
       - redis
       - mysql-tunnel
     volumes:
-      - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
-      - ./data/impresso-public-api:/impresso-middle-layer/data
+      - ./config/impresso-middle-layer-public.json:/impresso-middle-layer/config/docker.json
+      - middle-layer-cache:/impresso-middle-layer/data
     environment:
       NODE_ENV: docker
       # Uncomment if you want to debug the API
