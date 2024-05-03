@@ -65,7 +65,7 @@ services:
     volumes:
       - ./config/impresso-user-admin.env:/impresso-user-admin/.docker.env
       - impresso-user-media:/impresso-user-admin/media
-      - ./data/impresso-user-admin/logs/debug.log:/impresso-user-admin/logs/debug.log
+      - ./data/impresso-user-admin/logs:/impresso-user-admin/logs:z
     command: celery -A impresso worker -l info
   impresso-recsys:
     image: impresso/impresso-recsys:${IMPRESSO_RECSYS_TAG}
