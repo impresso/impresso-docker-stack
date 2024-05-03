@@ -12,10 +12,12 @@ services:
     environment:
       NODE_ENV: docker
       # Uncomment if you want to debug the API
-      DEBUG: 'impresso*'
+      # DEBUG: 'socket*'
     depends_on:
       - redis
       - mysql-tunnel
+    # ports:
+    #   - 3030:3030
     volumes:
       - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
       - middle-layer-cache:/impresso-middle-layer/data
@@ -25,13 +27,14 @@ services:
     depends_on:
       - redis
       - mysql-tunnel
+      - impresso-middle-layer
     volumes:
       - ./config/impresso-middle-layer-public.json:/impresso-middle-layer/config/docker.json
       - middle-layer-cache:/impresso-middle-layer/data
     environment:
       NODE_ENV: docker
       # Uncomment if you want to debug the API
-      DEBUG: 'impresso*'
+      # DEBUG: 'impresso*'
   mysql-tunnel:
     image: kroniak/ssh-client
     restart: always
@@ -62,6 +65,7 @@ services:
     volumes:
       - ./config/impresso-user-admin.env:/impresso-user-admin/.docker.env
       - impresso-user-media:/impresso-user-admin/media
+      - ./data/impresso-user-admin/logs:/impresso-user-admin/logs
     command: celery -A impresso worker -l info
   impresso-recsys:
     image: impresso/impresso-recsys:${IMPRESSO_RECSYS_TAG}
