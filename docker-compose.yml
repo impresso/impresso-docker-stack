@@ -12,7 +12,7 @@ services:
     environment:
       NODE_ENV: docker
       # Uncomment if you want to debug the API
-      # DEBUG: 'socket*'
+      # DEBUG: 'impresso*'
     depends_on:
       - redis
       - mysql-tunnel
@@ -51,6 +51,7 @@ services:
       - mysql-tunnel
     volumes:
       - ./config/impresso-user-admin.env:/impresso-user-admin/.docker.env
+      - ./data/impresso-user-admin/logs:/impresso-user-admin/logs:z
     command: python ./manage.py runserver 0.0.0.0:8000
     # ports:
     # - 8088:8000
@@ -64,7 +65,7 @@ services:
       - mysql-tunnel
     volumes:
       - ./config/impresso-user-admin.env:/impresso-user-admin/.docker.env
-      - impresso-user-media:/impresso-user-admin/media
+      - impresso-user-media:/impresso-user-admin/media:z
       - ./data/impresso-user-admin/logs:/impresso-user-admin/logs:z
     command: celery -A impresso worker -l info
   impresso-recsys:
