@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # So that Watchtower can update other containers
+      - -v $HOME/.docker/config.json:/config.json # Get Docker Hub credentials from here
+    # Check every 5 minutes
+    command: --interval 300 impresso-public-api impresso-middle-layer impresso-frontend
+    restart: always

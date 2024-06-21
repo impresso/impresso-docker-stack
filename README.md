@@ -13,6 +13,15 @@ Running in production (detached mode), check the contents of your `.env` file if
 docker-compose -p impresso up -d
 ```
 
+Running in staging (detached mode), with the watchtower service that updates the images every 5 minutes:
+
+```shell
+docker-compose -f docker-compose.yml -f docker-compose.watcher.yml -p impresso up -d
+```
+
+
+```shell
+
 Reading logs in production:
 ```shell
 docker-compose -p impresso logs -f
