@@ -98,6 +98,19 @@ services:
                   cp -r /impresso-frontend/* /impresso-frontend-files/ &&
                   echo 'Files in /impresso-frontend-files :' &&
                   ls -lat /impresso-frontend-files/"
+  impresso-datalab:
+    image: impresso/impresso-datalab:${IMPRESSO_DATALAB_TAG:-latest}
+    container_name: impresso-datalab
+    restart: always
+    volumes:
+      - datalab-app-files:/impresso-datalab-files
+    command: >
+      /bin/sh -c "rm -rf /impresso-datalab-files/* &&
+                  echo 'Files in /app :' &&
+                  ls -lat /app/ &&
+                  cp -r /app/* /impresso-datalab-files/ &&
+                  echo 'Files in /impresso-datalab-files/* :' &&
+                  ls -lat /impresso-datalab-files/"
   impresso-iiif-widget:
     image: impresso/impresso-iiif-widget:${IMPRESSO_IIIF_WIDGET_TAG}
     container_name: impresso-iiif-widget
@@ -134,6 +147,7 @@ services:
     volumes:
       - ./config/nginx.conf:/etc/nginx/conf.d/default.conf
       - frontend-app-files:/opt/impresso-frontend
+      - datalab-app-files:/opt/impresso-datalab
       - impresso-user-media:/opt/impresso-user-media
       - impresso-github-io-v1-files:/opt/impresso-github-io-v1
       - iiif-widget-app-files:/opt/impresso-iiif-widget
@@ -147,3 +161,4 @@ volumes:
   impresso-user-media:
   middle-layer-cache:
   impresso-github-io-v1-files:
+  datalab-app-files:
