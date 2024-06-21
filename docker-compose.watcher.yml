@@ -9,5 +9,7 @@ services:
     environment:
       WATCHTOWER_POLL_INTERVAL: 300 # Check every 5 minutes
       WATCHTOWER_CLEANUP: true # remove old images after updating
+      WATCHTOWER_INCLUDE_STOPPED: true # include frontend, which is normally stopped
+      WATCHTOWER_REVIVE_STOPPED: true # restart stopped after update
       #WATCHTOWER_NOTIFICATIONS: 'slack'
       #WATCHTOWER_NOTIFICATION_SLACK_HOOK_URL='...'
