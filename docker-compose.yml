@@ -12,26 +12,30 @@ services:
     environment:
       NODE_ENV: docker
       # Uncomment if you want to debug the API
-      DEBUG: 'impresso*'
+      # DEBUG: 'impresso*'
     depends_on:
       - redis
       - mysql-tunnel
+      - impresso-celery
+    # ports:
+    #   - 3030:3030
     volumes:
       - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
       - middle-layer-cache:/impresso-middle-layer/data
-  impresso-public-api:
-    image: impresso/impresso-public-api:${IMPRESSO_PUBLIC_API_TAG}
+  impresso-middle-layer-public:
+    image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
     restart: always
     depends_on:
       - redis
       - mysql-tunnel
+      - impresso-middle-layer
     volumes:
-      - ./config/impresso-public-api.json:/impresso-public-api/config/docker.json
-      - ./data/impresso-public-api:/impresso-public-api/data
+      - ./config/impresso-middle-layer-public.json:/impresso-middle-layer/config/docker.json
+      - middle-layer-cache:/impresso-middle-layer/data
     environment:
       NODE_ENV: docker
       # Uncomment if you want to debug the API
-      DEBUG: 'impresso*'
+      # DEBUG: 'impresso*'
   mysql-tunnel:
     image: kroniak/ssh-client
     restart: always
@@ -48,6 +52,7 @@ services:
       - mysql-tunnel
     volumes:
       - ./config/impresso-user-admin.env:/impresso-user-admin/.docker.env
+      - ./data/impresso-user-admin/logs:/impresso-user-admin/logs:z
     command: python ./manage.py runserver 0.0.0.0:8000
     # ports:
     # - 8088:8000
@@ -61,7 +66,8 @@ services:
       - mysql-tunnel
     volumes:
       - ./config/impresso-user-admin.env:/impresso-user-admin/.docker.env
-      - impresso-user-media:/impresso-user-admin/media
+      - impresso-user-media:/impresso-user-admin/media:z
+      - ./data/impresso-user-admin/logs:/impresso-user-admin/logs:z
     command: celery -A impresso worker -l info
   impresso-recsys:
     image: impresso/impresso-recsys:${IMPRESSO_RECSYS_TAG}
@@ -106,8 +112,8 @@ services:
                   ls -lat /app_files/"
   impresso-github-io-v1:
     image: impresso/impresso.github.io:v1.0.0
-    volumes:
-      - impresso-github-io-v1-files:/impresso.github.io-v1.0.0:z
+    # volumes:
+    #   - impresso-github-io-v1-files:/impresso.github.io-v1.0.0:z
     command: >
       /bin/sh -c "echo 'Files in /impresso.github.io-v1.0.0/:' && ls -lat /impresso.github.io-v1.0.0/"
   nginx:
