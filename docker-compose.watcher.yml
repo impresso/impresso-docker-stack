@@ -1,0 +1,15 @@
+version: '3.7'
+
+services:
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # So that Watchtower can update other containers
+      - -v $HOME/.docker/config.json:/config.json # Get Docker Hub credentials from here
+    command: impresso/impresso-middle-layer impresso/impresso-user-admin impresso/impresso-frontend
+    restart: always
+    environment:
+      WATCHTOWER_POLL_INTERVAL: 300 # Check every 5 minutes
+      WATCHTOWER_CLEANUP: true # remove old images after updating
+      #WATCHTOWER_NOTIFICATIONS: 'slack'
+      #WATCHTOWER_NOTIFICATION_SLACK_HOOK_URL='...'
