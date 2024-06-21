@@ -8,6 +8,7 @@ services:
   impresso-middle-layer:
     image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
     restart: always
+    container_name: impresso-middle-layer
     environment:
       NODE_ENV: docker
       # Uncomment if you want to debug the API
@@ -44,6 +45,7 @@ services:
   impresso-user-admin:
     image: impresso/impresso-user-admin:${IMPRESSO_USER_ADMIN_TAG}
     restart: always
+    container_name: impresso-user-admin
     environment:
       ENV: docker
     depends_on:
@@ -79,6 +81,7 @@ services:
       - ./config/recsys_config.py:/app/impresso_recsys/docker_settings.py
   impresso-frontend:
     image: impresso/impresso-frontend:${IMPRESSO_FRONTEND_TAG}
+    container_name: impresso-frontend
     volumes:
       - frontend-app-files:/impresso-frontend-files
     # Every time impresso-frontend container launches just copy static files
