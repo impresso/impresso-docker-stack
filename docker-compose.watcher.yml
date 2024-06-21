@@ -5,7 +5,7 @@ services:
     image: containrrr/watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # So that Watchtower can update other containers
-      - -v $HOME/.docker/config.json:/config.json # Get Docker Hub credentials from here
+      - $HOME/.docker/config.json:/config.json # Get Docker Hub credentials from here
     command: impresso/impresso-middle-layer impresso/impresso-user-admin impresso/impresso-frontend
     restart: always
     environment:
