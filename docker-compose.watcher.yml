@@ -10,6 +10,6 @@ services:
     restart: always
     environment:
       WATCHTOWER_POLL_INTERVAL: 300 # Check every 5 minutes
-      WATCHTOWER_CLEANUP: 'true' # remove old images after updating
+      WATCHTOWER_CLEANUP: true # remove old images after updating
       #WATCHTOWER_NOTIFICATIONS: 'slack'
       #WATCHTOWER_NOTIFICATION_SLACK_HOOK_URL='...'
