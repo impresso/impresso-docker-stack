@@ -24,6 +24,7 @@ services:
       - middle-layer-cache:/impresso-middle-layer/data
   impresso-middle-layer-public:
     image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
+    container_name: impresso-middle-layer-public
     restart: always
     depends_on:
       - redis
@@ -59,6 +60,7 @@ services:
     # - 8088:8000
   impresso-celery:
     image: impresso/impresso-user-admin:${IMPRESSO_USER_ADMIN_TAG}
+    container_name: impresso-celery
     restart: always
     environment:
       ENV: docker
@@ -72,6 +74,7 @@ services:
     command: celery -A impresso worker -l info
   impresso-recsys:
     image: impresso/impresso-recsys:${IMPRESSO_RECSYS_TAG}
+    container_name: impresso-recsys
     restart: always
     environment:
       DJANGO_SETTINGS_MODULE: impresso_recsys.docker_settings
@@ -97,6 +100,7 @@ services:
                   ls -lat /impresso-frontend-files/"
   impresso-iiif-widget:
     image: impresso/impresso-iiif-widget:${IMPRESSO_IIIF_WIDGET_TAG}
+    container_name: impresso-iiif-widget
     depends_on:
       - nginx
     volumes:
