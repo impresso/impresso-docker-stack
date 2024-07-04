@@ -4,12 +4,24 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # So that Watchtower can update other containers
       - $HOME/.docker/config.json:/config.json # Get Docker Hub credentials from here
-    command: impresso-middle-layer impresso-user-admin impresso-frontend impresso-middle-layer-public impresso-celery impresso-recsys impresso-iiif-widget
+    command: --include-stopped --revive-stopped impresso-middle-layer impresso-user-admin impresso-frontend impresso-middle-layer-public impresso-celery impresso-recsys impresso-iiif-widget
     restart: always
     environment:
       WATCHTOWER_POLL_INTERVAL: 300 # Check every 5 minutes
       WATCHTOWER_CLEANUP: true # remove old images after updating
-      WATCHTOWER_INCLUDE_STOPPED: true # include frontend, which is normally stopped
-      WATCHTOWER_REVIVE_STOPPED: true # restart stopped after update
-      #WATCHTOWER_NOTIFICATIONS: 'slack'
-      #WATCHTOWER_NOTIFICATION_SLACK_HOOK_URL='...'
+      WATCHTOWER_NOTIFICATION_URL: ${WEBHOOK_URL}
+      WATCHTOWER_NOTIFICATION_REPORT: "true"
+      WATCHTOWER_NOTIFICATION_TEMPLATE: >
+            {{- if .Report -}}
+            {{- with .Report -}}
+                  {{- if ( or .Updated .Failed ) -}}
+            {{len .Scanned}} Scanned, {{len .Updated}} Updated, {{len .Failed}} Failed
+                  {{- range .Updated}}
+            - {{.Name}} ({{.ImageName}}): {{.CurrentImageID.ShortID}} updated to {{.LatestImageID.ShortID}}
+                  {{- end -}}
+                  {{- range .Failed}}
+            - {{.Name}} ({{.ImageName}}): {{.State}}: {{.Error}}
+                  {{- end -}}
+                  {{- end -}}
+            {{- end -}}
+            {{- end -}}
