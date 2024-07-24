@@ -101,7 +101,6 @@ services:
   impresso-datalab:
     image: impresso/impresso-datalab:${IMPRESSO_DATALAB_TAG:-latest}
     container_name: impresso-datalab
-    restart: always
     volumes:
       - datalab-app-files:/impresso-datalab-files
     command: >
