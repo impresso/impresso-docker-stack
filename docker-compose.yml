@@ -22,8 +22,6 @@ services:
     volumes:
       - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
       - middle-layer-cache:/impresso-middle-layer/data
-    labels:
-      - 'com.centurylinklabs.watchtower.depends-on=impresso-nginx'
   impresso-middle-layer-public:
     image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
     container_name: impresso-middle-layer-public
@@ -39,8 +37,6 @@ services:
       NODE_ENV: docker
       # Uncomment if you want to debug the API
       # DEBUG: 'impresso*'
-    labels:
-      - 'com.centurylinklabs.watchtower.depends-on=impresso-nginx'
   mysql-tunnel:
     image: kroniak/ssh-client
     restart: always
@@ -62,8 +58,6 @@ services:
     command: python ./manage.py runserver 0.0.0.0:8000
     # ports:
     # - 8088:8000
-    labels:
-      - 'com.centurylinklabs.watchtower.depends-on=impresso-nginx'
   impresso-celery:
     image: impresso/impresso-user-admin:${IMPRESSO_USER_ADMIN_TAG}
     container_name: impresso-celery
@@ -160,6 +154,8 @@ services:
     # Uncomment the line below if nginx crashes because of incorrect configuration
     # This will make nginx print debug info
     # command: [nginx-debug, '-g', 'daemon off;']
+    labels:
+      - 'com.centurylinklabs.watchtower.depends-on=impresso-recsys,impresso-user-admin,impresso-middle-layer-public,impresso-middle-layer'
 volumes:
   frontend-app-files:
   iiif-widget-app-files:
