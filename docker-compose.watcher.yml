@@ -25,3 +25,13 @@ services:
                   {{- end -}}
             {{- end -}}
             {{- end -}}
+  # Restart unhealthy containers (combined with healthcheck policies in docker-compose.yml)
+  autoheal:
+    image: willfarrell/autoheal:latest
+    tty: true
+    container_name: autoheal
+    restart: unless-stopped
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=all
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

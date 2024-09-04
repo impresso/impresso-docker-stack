@@ -151,9 +151,15 @@ services:
       - impresso-user-media:/opt/impresso-user-media
       - impresso-github-io-v1-files:/opt/impresso-github-io-v1
       - iiif-widget-app-files:/opt/impresso-iiif-widget
+      - ./scripts/nginx-healthcheck.sh:/tmp/healthcheck.sh
     # Uncomment the line below if nginx crashes because of incorrect configuration
     # This will make nginx print debug info
     # command: [nginx-debug, '-g', 'daemon off;']
+    # Run healthcheck script
+    healthcheck:
+      test: 'sh /tmp/healthcheck.sh'
+      timeout: 4s
+      retries: 1
     labels:
       - 'com.centurylinklabs.watchtower.depends-on=impresso-recsys,impresso-user-admin,impresso-middle-layer-public,impresso-middle-layer'
 volumes:
