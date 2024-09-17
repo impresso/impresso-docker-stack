@@ -4,7 +4,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # So that Watchtower can update other containers
       - $HOME/.docker/config.json:/config.json # Get Docker Hub credentials from here
-    command: --include-stopped --revive-stopped impresso-middle-layer impresso-user-admin impresso-frontend impresso-middle-layer-public impresso-celery impresso-recsys impresso-iiif-widget
+    command: --include-stopped --revive-stopped impresso-middle-layer impresso-user-admin impresso-frontend impresso-middle-layer-public impresso-celery impresso-recsys impresso-datalab impresso-iiif-widget
     restart: always
     environment:
       WATCHTOWER_POLL_INTERVAL: 300 # Check every 5 minutes
