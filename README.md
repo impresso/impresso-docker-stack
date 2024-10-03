@@ -43,6 +43,10 @@ We provide a sample set of files in `config_example`. Fields that need to be rep
 
 A special note about the database. Our setup assumes the database is accessed via an SSH tunnel to the database host. If the database port is accessible directly, you can simplify the configuration by setting the db hostname, port and credentials in the relevant config files, commenting out the `mysql-tunnel` section in `docker-compose.yml`. In this case you also do not need the files in the `config/ssh` folder, those are used for the DB tunnel only.
 
+# Host configuration
+
+Increase the default limit of open files on the host server to increase the maximum allowed number of connections. See [here](https://socket.io/docs/v4/performance-tuning/#at-the-os-level).
+
 # Apps versions
 
 Tags of `impresso` docker images are read from the `.env` file. The default file with all tags set to `latest` is provided in this repository.
