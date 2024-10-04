@@ -5,8 +5,8 @@
   },
   "celery": {
     "enable": true,
-    "CELERY_BROKER_URL": "redis://redis/4",
-    "CELERY_RESULT_BACKEND": "redis://redis/5"
+    "brokerUrl": "redis://redis/4",
+    "backendUrl": "redis://redis/5"
   },
   "accessRights": {
     "showExcerpt": true
