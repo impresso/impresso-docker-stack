@@ -5,6 +5,12 @@ services:
     volumes:
       - redis-data:/data
     entrypoint: redis-server --appendonly yes
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: "true"
+        tag: impresso.redis
   impresso-middle-layer:
     image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
     restart: always
@@ -22,6 +28,12 @@ services:
     volumes:
       - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
       - middle-layer-cache:/impresso-middle-layer/data
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: "true"
+        tag: impresso.middle-layer
   impresso-middle-layer-public:
     image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
     container_name: impresso-middle-layer-public
@@ -37,6 +49,12 @@ services:
       NODE_ENV: docker
       # Uncomment if you want to debug the API
       # DEBUG: 'impresso*'
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: "true"
+        tag: impresso.middle-layer-public
   mysql-tunnel:
     image: kroniak/ssh-client
     restart: always
@@ -58,6 +76,12 @@ services:
     command: python ./manage.py runserver 0.0.0.0:8000
     # ports:
     # - 8088:8000
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: "true"
+        tag: impresso.user-admin
   impresso-celery:
     image: impresso/impresso-user-admin:${IMPRESSO_USER_ADMIN_TAG}
     container_name: impresso-celery
@@ -72,6 +96,12 @@ services:
       - impresso-user-media:/impresso-user-admin/media:z
       - ./data/impresso-user-admin/logs:/impresso-user-admin/logs:z
     command: celery -A impresso worker -l info
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: "true"
+        tag: impresso.celery
   impresso-recsys:
     image: impresso/impresso-recsys:${IMPRESSO_RECSYS_TAG}
     container_name: impresso-recsys
@@ -82,6 +112,12 @@ services:
       - '8000'
     volumes:
       - ./config/recsys_config.py:/app/impresso_recsys/docker_settings.py
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: "true"
+        tag: impresso.recsys
   impresso-frontend:
     image: impresso/impresso-frontend:${IMPRESSO_FRONTEND_TAG}
     container_name: impresso-frontend
@@ -144,6 +180,18 @@ services:
       retries: 1
     labels:
       - 'com.centurylinklabs.watchtower.depends-on=impresso-recsys,impresso-user-admin,impresso-middle-layer-public,impresso-middle-layer'
+  fluentd:
+    container_name: impresso-fluentd
+    restart: always
+    image: fluentd:v1.17.1-1.0
+    volumes:
+      - ./config/fluentd:/fluentd/etc
+    environment:
+      MATOMO_DOMAIN: ${MATOMO_DOMAIN}
+      MATOMO_ERROR_USER_ID: ${MATOMO_ERROR_USER_ID}
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
 volumes:
   frontend-app-files:
   iiif-widget-app-files:
