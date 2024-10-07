@@ -58,7 +58,10 @@ def main
     end.compact
 
     if messages.any?
-      send_to_slack(messages)
+      # split into chunks of 40 messages to avoid Slack API limits of 40000 characters
+      messages.each_slice(40) do |chunk|
+        send_to_slack(chunk)
+      end
     end
 
   else
