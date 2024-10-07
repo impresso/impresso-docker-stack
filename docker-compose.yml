@@ -189,6 +189,7 @@ services:
     environment:
       MATOMO_DOMAIN: ${MATOMO_DOMAIN}
       MATOMO_ERROR_USER_ID: ${MATOMO_ERROR_USER_ID}
+      SLACK_WEBHOOK_URL: ${SLACK_ERRORS_WEBHOOK_URL}
     ports:
       - "24224:24224"
       - "24224:24224/udp"
