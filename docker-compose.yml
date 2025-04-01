@@ -11,6 +11,16 @@ services:
         fluentd-address: localhost:24224
         fluentd-async-connect: "true"
         tag: impresso.redis
+  socks-proxy:
+    image: kroniak/ssh-client
+    restart: always
+    profiles:
+      - local
+    volumes:
+      - ./config/ssh:/root/.ssh
+    ports:
+      - 1080:1080
+    command: ssh -N socks-proxy
   impresso-middle-layer:
     image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
     restart: always
@@ -118,6 +128,22 @@ services:
         fluentd-address: localhost:24224
         fluentd-async-connect: "true"
         tag: impresso.recsys
+  impresso-barista:
+    image: impresso/impresso-barista:${IMPRESSO_BARISTA_TAG}
+    container_name: impresso-barista
+    restart: always
+    profiles:
+      - barista
+    expose:
+      - '8000'
+    volumes:
+      - ./config/barista.env:/app/.env
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: "true"
+        tag: impresso.barista
   impresso-frontend:
     image: impresso/impresso-frontend:${IMPRESSO_FRONTEND_TAG}
     container_name: impresso-frontend
