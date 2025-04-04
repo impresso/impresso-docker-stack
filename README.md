@@ -1,35 +1,54 @@
 # Impresso app stack
 
-Running Impresso app stack in docker compose:
+## Prepare environment
+
+Copy the example environment file:
 
 ```shell
 cp .env.example .env
-docker-compose -p impresso up
 ```
 
-Running in production (detached mode), check the contents of your `.env` file if any:
+Edit the `.env` file to set the correct values for your environment. 
+When running locally, you can use the default values. 
+
+## Running in production
+
+Production servers do not require a proxy.
 
 ```shell
-docker-compose -p impresso up -d
+docker compose up
+```
+
+or
+
+```shell
+docker compose up -d
 ```
 
 Running in staging (detached mode), with the watchtower service that updates the images every 5 minutes:
 
 ```shell
-docker-compose -f docker-compose.yml -f docker-compose.watcher.yml -p impresso up -d
+docker compose -f docker-compose.yml -f docker-compose.watcher.yml up -d
 ```
 
-
-```shell
-
 Reading logs in production:
+
 ```shell
-docker-compose -p impresso logs -f
+docker compose logs -f
 ```
 
 The `.env.example` contains `latest` images of the services in docker-compose and it is for development purposes.
 
-# Configuration
+## Running in development
+
+Running outside of the production servers requires a proxy.
+
+```shell
+docker compose --profile with_proxy up
+```
+
+
+## Configuration
 
 Docker compose expects several files located in `config` directory in this folder:
 

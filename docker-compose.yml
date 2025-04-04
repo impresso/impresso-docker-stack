@@ -15,7 +15,7 @@ services:
     image: kroniak/ssh-client
     restart: always
     profiles:
-      - local
+      - with_proxy
     volumes:
       - ./config/ssh:/root/.ssh
     ports:
@@ -209,9 +209,9 @@ services:
   fluentd:
     container_name: impresso-fluentd
     restart: always
-    image: fluentd:v1.17.1-1.0
+    build: ./docker/fluentd
     volumes:
-      - ./config/fluentd:/fluentd/etc
+      - ./docker/fluentd/configuration:/fluentd/etc
     environment:
       MATOMO_DOMAIN: ${MATOMO_DOMAIN}
       MATOMO_ERROR_USER_ID: ${MATOMO_ERROR_USER_ID}
