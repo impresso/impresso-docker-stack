@@ -3,10 +3,10 @@ require 'uri'
 require 'json'
 require_relative './slack_utils'
 
-$slack_webhook_url = ENV['SLACK_ERRORS_WEBHOOK_URL']
+$slack_webhook_url = ENV['SLACK_FEEDBACK_WEBHOOK_URL']
 
 if $slack_webhook_url.nil?
-  puts "Please set SLACK_ERRORS_WEBHOOK_URL environment variable"
+  puts "Please set SLACK_FEEDBACK_WEBHOOK_URL environment variable"
   exit 1
 end
 
