@@ -12,7 +12,7 @@ end
 
 def main
   file_path = ARGV[0]
-  process_slack_messages(messages, $slack_webhook_url)
+  process_slack_messages(file_path, $slack_webhook_url)
 end
 
 if __FILE__ == $0
