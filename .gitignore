@@ -2,8 +2,8 @@ config
 *.tar.bz2
 *.tar.gz
 *.zip
-config_preprod
-config_prod
-config_dev
 .DS_Store
 .env
+
+config_*
+data/**/*
