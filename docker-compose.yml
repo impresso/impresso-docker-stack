@@ -12,6 +12,7 @@ services:
         fluentd-async-connect: "true"
         tag: impresso.redis
   socks-proxy:
+    container_name: socks-proxy
     image: kroniak/ssh-client
     restart: always
     profiles:
@@ -53,10 +54,12 @@ services:
       - mysql-tunnel
       - impresso-middle-layer
     volumes:
-      - ./config/impresso-middle-layer-public.json:/impresso-middle-layer/config/docker.json
+      - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
+      - ./config/impresso-middle-layer-public.json:/impresso-middle-layer/config/api-docker.json
       - middle-layer-cache:/impresso-middle-layer/data
     environment:
       NODE_ENV: docker
+      HOST: api
       # Uncomment if you want to debug the API
       # DEBUG: 'impresso*'
     logging:
@@ -119,7 +122,7 @@ services:
     environment:
       DJANGO_SETTINGS_MODULE: impresso_recsys.docker_settings
     expose:
-      - '8000'
+      - "8000"
     volumes:
       - ./config/recsys_config.py:/app/impresso_recsys/docker_settings.py
     logging:
@@ -135,7 +138,7 @@ services:
     profiles:
       - barista
     expose:
-      - '8000'
+      - "8000"
     volumes:
       - ./config/barista.env:/app/.env
     logging:
@@ -183,7 +186,7 @@ services:
     container_name: impresso-nginx
     restart: always
     ports:
-      - '${NGINX_PORT:-80}:80'
+      - "${NGINX_PORT:-80}:80"
     depends_on:
       - impresso-middle-layer
       - impresso-user-admin
@@ -201,11 +204,11 @@ services:
     # command: [nginx-debug, '-g', 'daemon off;']
     # Run healthcheck script
     healthcheck:
-      test: 'sh /tmp/healthcheck.sh'
+      test: "sh /tmp/healthcheck.sh"
       timeout: 4s
       retries: 1
     labels:
-      - 'com.centurylinklabs.watchtower.depends-on=impresso-recsys,impresso-user-admin,impresso-middle-layer-public,impresso-middle-layer'
+      - "com.centurylinklabs.watchtower.depends-on=impresso-recsys,impresso-user-admin,impresso-middle-layer-public,impresso-middle-layer"
   fluentd:
     container_name: impresso-fluentd
     restart: always
