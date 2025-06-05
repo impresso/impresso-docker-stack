@@ -161,7 +161,13 @@ services:
     command: ["python", "-m", "impresso_content_auth.main", "--server"]
     env_file: "./.env"
     environment:
-      - PORT=8087
+      PORT: 8087
+      JWT_SECRET: ${AUTH_SECRET_IML}
+      SOLR_BASE_URL: ${SOLR_BASE_URL}
+      SOLR_USERNAME: ${SOLR_READER_USERNAME}
+      SOLR_PASSWORD: ${SOLR_READER_PASSWORD}
+      SOLR_PROXY_URL: socks5://socks-proxy:1080
+      SOLR_CONTENT_ITEM_COLLECTION: ${SOLR_CONTENT_ITEM_INDEX}
     ports:
       - "8087:8087"
   impresso-frontend:
