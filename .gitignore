@@ -7,3 +7,5 @@ config_prod
 config_dev
 .DS_Store
 .env
+
+config_prod_*
