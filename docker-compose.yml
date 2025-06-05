@@ -9,7 +9,7 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: localhost:24224
-        fluentd-async-connect: "true"
+        fluentd-async: "true"
         tag: impresso.redis
   socks-proxy:
     image: kroniak/ssh-client
@@ -17,14 +17,15 @@ services:
     profiles:
       - with_proxy
     volumes:
-      - ./config/ssh:/root/.ssh
+      - ./proxy_config:/root/.ssh
     ports:
       - 1080:1080
     command: ssh -N socks-proxy
   impresso-middle-layer:
-    image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
+    image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG:-latest}
     restart: always
     container_name: impresso-middle-layer
+    env_file: "./.env"
     environment:
       NODE_ENV: docker
       # Uncomment if you want to debug the API
@@ -42,10 +43,10 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: localhost:24224
-        fluentd-async-connect: "true"
+        fluentd-async: "true"
         tag: impresso.middle-layer
   impresso-middle-layer-public:
-    image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
+    image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG:-latest}
     container_name: impresso-middle-layer-public
     restart: always
     depends_on:
@@ -53,28 +54,34 @@ services:
       - mysql-tunnel
       - impresso-middle-layer
     volumes:
-      - ./config/impresso-middle-layer-public.json:/impresso-middle-layer/config/docker.json
+      - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
+      - ./config/impresso-middle-layer-public.json:/impresso-middle-layer/config/api-docker.json
       - middle-layer-cache:/impresso-middle-layer/data
+    env_file: "./.env"
     environment:
       NODE_ENV: docker
+      # Setting host to API allows us to load the api.json config file on top of the docker.json
+      # file to override only the API related settings.
+      HOST: api
       # Uncomment if you want to debug the API
       # DEBUG: 'impresso*'
     logging:
       driver: "fluentd"
       options:
         fluentd-address: localhost:24224
-        fluentd-async-connect: "true"
+        fluentd-async: "true"
         tag: impresso.middle-layer-public
   mysql-tunnel:
     image: kroniak/ssh-client
     restart: always
     volumes:
-      - ./config/ssh:/root/.ssh
+      - ./proxy_config:/root/.ssh
     command: bash -c "chown root /root/.ssh/config && ssh -N impresso-mysql-tunnel"
   impresso-user-admin:
-    image: impresso/impresso-user-admin:${IMPRESSO_USER_ADMIN_TAG}
+    image: impresso/impresso-user-admin:${IMPRESSO_USER_ADMIN_TAG:-latest}
     restart: always
     container_name: impresso-user-admin
+    env_file: "./.env"
     environment:
       ENV: docker
     depends_on:
@@ -90,12 +97,13 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: localhost:24224
-        fluentd-async-connect: "true"
+        fluentd-async: "true"
         tag: impresso.user-admin
   impresso-celery:
-    image: impresso/impresso-user-admin:${IMPRESSO_USER_ADMIN_TAG}
+    image: impresso/impresso-user-admin:${IMPRESSO_USER_ADMIN_TAG:-latest}
     container_name: impresso-celery
     restart: always
+    env_file: "./.env"
     environment:
       ENV: docker
     depends_on:
@@ -110,12 +118,13 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: localhost:24224
-        fluentd-async-connect: "true"
+        fluentd-async: "true"
         tag: impresso.celery
   impresso-recsys:
-    image: impresso/impresso-recsys:${IMPRESSO_RECSYS_TAG}
+    image: impresso/impresso-recsys:${IMPRESSO_RECSYS_TAG:-latest}
     container_name: impresso-recsys
     restart: always
+    env_file: "./.env"
     environment:
       DJANGO_SETTINGS_MODULE: impresso_recsys.docker_settings
     expose:
@@ -126,24 +135,35 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: localhost:24224
-        fluentd-async-connect: "true"
+        fluentd-async: "true"
         tag: impresso.recsys
   impresso-barista:
-    image: impresso/impresso-barista:${IMPRESSO_BARISTA_TAG}
+    image: impresso/impresso-barista:${IMPRESSO_BARISTA_TAG:-latest}
     container_name: impresso-barista
     restart: always
     profiles:
       - barista
     expose:
       - "8000"
-    volumes:
-      - ./config/barista.env:/app/.env
+    environment:
+      IML_URL: http://impresso-middle-layer:3030
+      IML_PATH: socket.io
+    env_file: "./.env"
     logging:
       driver: "fluentd"
       options:
         fluentd-address: localhost:24224
-        fluentd-async-connect: "true"
+        fluentd-async: "true"
         tag: impresso.barista
+  auth-service:
+    image: impresso/impresso-content-auth:${IMPRESSO_AUTH_SERVICE_TAG:-latest}
+    container_name: impresso-auth-service
+    command: ["python", "-m", "impresso_content_auth.main", "--server"]
+    env_file: "./.env"
+    environment:
+      - PORT=8087
+    ports:
+      - "8087:8087"
   impresso-frontend:
     image: impresso/impresso-frontend:${IMPRESSO_FRONTEND_TAG}
     container_name: impresso-frontend
@@ -190,6 +210,7 @@ services:
       - impresso-frontend
     volumes:
       - ./config/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx_config:/etc/nginx/extra_config_files
       - frontend-app-files:/opt/impresso-frontend
       - datalab-app-files:/opt/impresso-datalab
       - impresso-user-media:/opt/impresso-user-media

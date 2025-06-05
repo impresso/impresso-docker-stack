@@ -1,0 +1,133 @@
+{
+  "$schema": "https://raw.githubusercontent.com/impresso/impresso-middle-layer/refs/heads/develop/src/schema/common/config.json",
+  "host": "0.0.0.0",
+  "redis": {
+    "host": "redis"
+  },
+  "celery": {
+    "enable": true,
+    "brokerUrl": "redis://redis/4",
+    "backendUrl": "redis://redis/5"
+  },
+  "authentication": {
+    "secret": "${AUTH_SECRET_IML}",
+    "jwtOptions": {
+      "audience": "https://dev.impresso-project.ch/app"
+    }
+  },
+  "images": {
+    "baseUrl": "https://dev.impresso-project.ch/api/proxy/iiif",
+    "proxy": {
+      "defaultSourceId": "epfl-cantaloupe",
+      "sources": [
+        {
+          "id": "epfl-loris",
+          "endpoint": "https://dhlabsrv17.epfl.ch/iiif_impresso/",
+          "auth": {
+            "user": "${IIIF_LORS_USERNAME}",
+            "pass": "${IIIF_LORS_PASSWORD}"
+          }
+        },
+        {
+          "id": "epfl-cantaloupe",
+          "endpoint": "https://iiif-impresso.epfl.ch/iiif/3/",
+          "auth": {
+            "user": "${IIIF_CANTALOUPE_USERNAME}",
+            "pass": "${IIIF_CANTALOUPE_PASSWORD}"
+          }
+        }
+      ]
+    }
+  },
+  "sequelize": {
+    "alias": "srv8/impresso_dev",
+    "dialect": "mysql",
+    "host": "mysql-impresso.epfl.ch",
+    "port": 3306,
+    "database": "impresso_dev",
+    "auth": {
+      "user": "${DB_USERNAME}",
+      "pass": "${DB_PASSWORD}"
+    }
+  },
+  "recommender": {
+    "articles": {
+      "endpoint": "https://dev.impresso-project.ch/recsys/recommend/"
+    }
+  },
+  "solrConfiguration": {
+    "servers": [
+      {
+        "id": "old",
+        "baseUrl": "${SOLR_OLD_BASE_URL}",
+        "auth": {
+          "read": {
+            "username": "${SOLR_OLD_READER_USERNAME}",
+            "password": "${SOLR_OLD_READER_PASSWORD}"
+          },
+          "write": {
+            "username": "${SOLR_OLD_WRITER_USERNAME}",
+            "password": "${SOLR_OLD_WRITER_PASSWORD}"
+          }
+        }
+      },
+      {
+        "id": "default",
+        "baseUrl": "${SOLR_BASE_URL}",
+        "auth": {
+          "read": {
+            "username": "${SOLR_READER_USERNAME}",
+            "password": "${SOLR_READER_PASSWORD}"
+          },
+          "write": {
+            "username": "${SOLR_WRITER_USERNAME}",
+            "password": "${SOLR_WRITER_PASSWORD}"
+          }
+        },
+        "proxy": { "host": "socks-proxy", "port": 1080 }
+      }
+    ],
+    "namespaces": [
+      { "namespaceId": "search", "serverId": "default", "index": "impresso" },
+      {
+        "namespaceId": "mentions",
+        "serverId": "default",
+        "index": "impresso_mentions_test"
+      },
+      {
+        "namespaceId": "topics",
+        "serverId": "default",
+        "index": "impresso_topics_dev"
+      },
+      {
+        "namespaceId": "entities",
+        "serverId": "default",
+        "index": "impresso_entities_dev"
+      },
+      {
+        "namespaceId": "images",
+        "serverId": "default",
+        "index": "impresso_images_dev",
+        "schemaVersion": "v2"
+      },
+      {
+        "namespaceId": "tr_passages",
+        "serverId": "default",
+        "index": "impresso_tr_passages"
+      },
+      {
+        "namespaceId": "tr_clusters",
+        "serverId": "default",
+        "index": "impresso_tr_clusters"
+      },
+      {
+        "namespaceId": "word_embeddings",
+        "serverId": "default",
+        "index": "impresso_word_emb_dev"
+      }
+    ]
+  },
+  "features": {
+    "barista": { "enabled": true, "url": "http://impresso-barista:8000/chat" }
+  }
+}
