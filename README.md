@@ -8,27 +8,28 @@ Copy the example environment file:
 cp .env.example .env
 ```
 
-Edit the `.env` file to set the correct values for your environment. 
-When running locally, you can use the default values. 
+Edit the `.env` file to set the correct values for your environment.
 
 ## Running in production
 
 Production servers do not require a proxy.
 
 ```shell
-docker compose up
+docker compose  --env-file ./.env up
 ```
 
 or
 
 ```shell
-docker compose up -d
+docker compose  --env-file ./.env up -d
 ```
+
+## Running in dev (staging)
 
 Running in staging (detached mode), with the watchtower service that updates the images every 5 minutes:
 
 ```shell
-docker compose -f docker-compose.yml -f docker-compose.watcher.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.watcher.yml  --env-file ./.env up -d
 ```
 
 Reading logs in production:
@@ -44,106 +45,53 @@ The `.env.example` contains `latest` images of the services in docker-compose an
 Running outside of the production servers requires a proxy.
 
 ```shell
-docker compose --profile with_proxy up
+docker compose --env-file ./.env --profile with_proxy up
 ```
 
+If barista service needs to be enabled, add `--profile barista` to the command above.
+
+```shell
+docker compose --env-file ./.env --profile with_proxy --profile barista up
+```
 
 ## Configuration
 
-Docker compose expects several files located in `config` directory in this folder:
+Docker compose expects several files located in `config` directory.
 
- * `impresso-middle-layer.json` - middle layer API configuration
- * `impresso-user-admin.env` - admin dashboard and celery tasks app configuration
- * `nginx.conf` - nginx configuration
- * `ssh/config` - ssh tunnel configuration (plus key files in `ssh` folder if needed)
- * `recsys_config.py` - collections recommender system configuration
+Several directories are provided for different configurations:
 
-We provide a sample set of files in `config_example`. Fields that need to be replaced (mostly hostnames, usernames and passwords) are marked with `[!!!REPLACE]` string.
+* `config_prod` - production configuration
+* `config_dev` - development configuration
+
+To use the suitable configuration, create a symlink to the desired configuration directory:
+
+```shell
+ln -s config_prod config
+```
+
+### Proxy and extra nginx configuration
+
+Proxy (ssh tunnel) configuration should be placed in `proxy_config` directory. If Nginx configuration needs extra files, they should be placed in `nginx_config` directory.
 
 A special note about the database. Our setup assumes the database is accessed via an SSH tunnel to the database host. If the database port is accessible directly, you can simplify the configuration by setting the db hostname, port and credentials in the relevant config files, commenting out the `mysql-tunnel` section in `docker-compose.yml`. In this case you also do not need the files in the `config/ssh` folder, those are used for the DB tunnel only.
 
-# Host configuration
+## Host configuration
 
 Increase the default limit of open files on the host server to increase the maximum allowed number of connections. See [here](https://socket.io/docs/v4/performance-tuning/#at-the-os-level).
 
-# Apps versions
+## Apps versions
 
 Tags of `impresso` docker images are read from the `.env` file. The default file with all tags set to `latest` is provided in this repository.
 
 ## Docker specific configuration notes for components
 
-### Middle Layer API
-
-Make sure the following parameters are set to internal docker hostnames:
-
- * `redis.host` to `redis`
- * `celery.CELERY_BROKER_URL` hostname to `redis`
- * `celery.CELERY_RESULT_BACKEND` hostname to `redis`
- * `sequelize.host` to `mysql-tunnel`
- * `sequelize.port` to `3306`
-
-
-### User Admin Dashboard / Celery
-
-Make sure the following parameters are set to internal docker hostnames:
-
- * `IMPRESSO_DB_HOST` to `mysql-tunnel`
- * `IMPRESSO_DB_PORT` to `3306`
- * `REDIS_HOST` to `redis`
- * `STATIC_URL` to `/admin/static/` (assuming in `nginx` configuration the base URL of the dashboard is `/admin/`)
- * `ALLOWED_HOSTS` to `*` (dashboard is behind nginx reverse proxy which manages this)
-
 ### Frontend Web App
 
 When building docker container for the app make sure:
 
- * webpack compiles the app with `PUBLIC_PATH` environmental variable set to `/app/` (assuming that the app base URL in `nginx` configuration is `/app`).
- * `BASE_URL` in `prod.env.js` is set to `'"/app"'` (assuming that the app base URL in `nginx` configuration is `/app`).
- * `MIDDLELAYER_API` in `prod.env.js` is set to `'""'`
- * `MIDDLELAYER_API_PATH` in `prod.env.js` is set to `'"/api"'` (assuming that middle layer API base URL in `nginx` configuration is `/api`)
- * `MIDDLELAYER_API_SOCKET_PATH` in `prod.env.js` is set to `'"/api/socket.io/"'` (assuming that middle layer API base URL in `nginx` configuration is `/api`)
- * `MIDDLELAYER_MEDIA_PATH`  in `prod.env.js` is set to `'"/api/media"'` (assuming that the api base URL in `nginx` configuration is `/api`)
-
-
-### Scripts, to be executed only when data changes.
-
-```
-impresso-middle-layer-update-cache:
-  # Updates cache files expected by middle layer. They do not change often
-  # so until this is refactored it is fine to run it on docker compose "up" or manually.
-  image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
-  environment:
-    NODE_ENV: docker
-  depends_on:
-    - mysql-tunnel
-  volumes:
-    - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
-    - middle-layer-cache:/impresso-middle-layer/data
-  entrypoint:  >
-    /bin/sh -c "echo 'Updating newspapers:' &&
-                (node scripts/update-newspapers.js || true) &&
-                echo 'Updating topics:' &&
-                (node scripts/update-topics.js || true) &&
-                echo 'Updating years:' &&
-                (node scripts/update-years.js || true) &&
-                echo 'Updating facet ranges:' &&
-                (node scripts/update-facet-ranges.js || true)"
-impresso-middle-layer-update-related-topics:
-  # Updates related topics cache files expected by middle layer.
-  # It's a long running script (takes about 30-40 minutes). It should be run
-  # Every time Solr data changes.
-  image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG}
-  environment:
-    NODE_ENV: docker
-    DEBUG: impresso/scripts*
-  depends_on:
-    - mysql-tunnel
-  volumes:
-    - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
-    - middle-layer-cache:/impresso-middle-layer/data
-  entrypoint:  >
-    /bin/sh -c "echo 'Updating related topics:' &&
-                (node scripts/update-topics-related.js || true) &&
-                echo 'Updating Topic Graph:' &&
-                (node scripts/update-topics-positions.js || true)"
-```
+* webpack compiles the app with `PUBLIC_PATH` environmental variable set to `/app/` (assuming that the app base URL in `nginx` configuration is `/app`).
+* `BASE_URL` in `prod.env.js` is set to `'"/app"'` (assuming that the app base URL in `nginx` configuration is `/app`).
+* `MIDDLELAYER_API` in `prod.env.js` is set to `'""'`
+* `MIDDLELAYER_API_PATH` in `prod.env.js` is set to `'"/api"'` (assuming that middle layer API base URL in `nginx` configuration is `/api`)
+* `MIDDLELAYER_API_SOCKET_PATH` in `prod.env.js` is set to `'"/api/socket.io/"'` (assuming that middle layer API base URL in `nginx` configuration is `/api`)
+* `MIDDLELAYER_MEDIA_PATH`  in `prod.env.js` is set to `'"/api/media"'` (assuming that the api base URL in `nginx` configuration is `/api`)

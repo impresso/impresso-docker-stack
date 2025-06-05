@@ -2,10 +2,18 @@ config
 *.tar.bz2
 *.tar.gz
 *.zip
-config_preprod
-config_prod
-config_dev
 .DS_Store
 .env
+.env.*
+!.env.example
 
-config_prod_*
+proxy_config/*
+!proxy_config/.gitkeep
+
+nginx_config/*
+!nginx_config/.gitkeep
+
+backup/*
+
+data/*
+!data/.gitkeep
