@@ -42,8 +42,8 @@
   "sequelize": {
     "alias": "0069/impresso_dev",
     "dialect": "mysql",
-    "host": "dev-mysql-impresso.epfl.ch",
-    "port": 3306,
+    "host": "mysql-tunnel",
+    "port": 3307,
     "database": "impresso_dev",
     "auth": {
       "user": "${DB_USERNAME}",
