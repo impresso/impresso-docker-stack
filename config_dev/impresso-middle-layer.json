@@ -40,9 +40,9 @@
     }
   },
   "sequelize": {
-    "alias": "srv8/impresso_dev",
+    "alias": "0069/impresso_dev",
     "dialect": "mysql",
-    "host": "mysql-impresso.epfl.ch",
+    "host": "dev-mysql-impresso.epfl.ch",
     "port": 3306,
     "database": "impresso_dev",
     "auth": {
@@ -92,28 +92,28 @@
       {
         "namespaceId": "mentions",
         "serverId": "default",
-        "index": "impresso_mentions_test"
+        "index": "impresso_mentions"
       },
       {
         "namespaceId": "topics",
         "serverId": "default",
-        "index": "impresso_topics_dev"
+        "index": "impresso_topics"
       },
       {
         "namespaceId": "entities",
         "serverId": "default",
-        "index": "impresso_entities_dev"
+        "index": "impresso_entities"
       },
       {
         "namespaceId": "images",
         "serverId": "default",
-        "index": "impresso_images_dev",
+        "index": "impresso_images",
         "schemaVersion": "v2"
       },
       {
         "namespaceId": "tr_passages",
         "serverId": "default",
-        "index": "impresso_tr_passages"
+        "index": "impresso_tr_passages_dev"
       },
       {
         "namespaceId": "tr_clusters",
@@ -123,7 +123,7 @@
       {
         "namespaceId": "word_embeddings",
         "serverId": "default",
-        "index": "impresso_word_emb_dev"
+        "index": "impresso_word_emb"
       }
     ]
   },
