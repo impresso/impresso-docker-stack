@@ -44,7 +44,7 @@
     "dialect": "mysql",
     "host": "mysql-tunnel",
     "port": 3307,
-    "database": "impresso_dev",
+    "database": "impresso_test",
     "auth": {
       "user": "${DB_USERNAME}",
       "pass": "${DB_PASSWORD}"
