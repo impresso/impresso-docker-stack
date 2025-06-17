@@ -63,12 +63,12 @@
     "dialect": "mysql",
     "host": "mysql-tunnel",
     "port": 3306,
-    "database": "impresso",
+    "database": "[!!!REPLACE] db_name",
     "auth": {
       "user": "[!!!REPLACE] db_username",
       "pass": "[!!!REPLACE] db_password"
     },
-    "tables":{
+    "tables": {
       "articles": "content_items",
       "pages": "pages",
       "newspapers": "newspapers",
