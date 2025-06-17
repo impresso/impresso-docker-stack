@@ -44,7 +44,7 @@
     "dialect": "mysql",
     "host": "mysql-tunnel",
     "port": 3307,
-    "database": "impresso_test",
+    "database": "${DB_NAME}",
     "auth": {
       "user": "${DB_USERNAME}",
       "pass": "${DB_PASSWORD}"
@@ -88,7 +88,11 @@
       }
     ],
     "namespaces": [
-      { "namespaceId": "search", "serverId": "default", "index": "impresso" },
+      {
+        "namespaceId": "search",
+        "serverId": "default",
+        "index": "${SOLR_CONTENT_ITEM_INDEX}"
+      },
       {
         "namespaceId": "mentions",
         "serverId": "default",
