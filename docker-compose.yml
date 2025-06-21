@@ -168,6 +168,7 @@ services:
       SOLR_PASSWORD: ${SOLR_READER_PASSWORD}
       SOLR_PROXY_URL: socks5://socks-proxy:1080
       SOLR_CONTENT_ITEM_COLLECTION: ${SOLR_CONTENT_ITEM_INDEX}
+      LOG_LEVEL: ${AUTH_SERVICE_LOG_LEVEL:-INFO}
     ports:
       - "8087:8087"
   impresso-frontend:
