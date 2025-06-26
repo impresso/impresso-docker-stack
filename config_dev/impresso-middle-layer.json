@@ -88,11 +88,11 @@
       }
     ],
     "namespaces": [
-      { "namespaceId": "search", "serverId": "default", "index": "impresso" },
+      { "namespaceId": "search", "serverId": "default", "index": "impresso_dev" },
       {
         "namespaceId": "mentions",
         "serverId": "default",
-        "index": "impresso_mentions"
+        "index": "impresso_mentions_test"
       },
       {
         "namespaceId": "topics",
@@ -102,7 +102,7 @@
       {
         "namespaceId": "entities",
         "serverId": "default",
-        "index": "impresso_entities"
+        "index": "impresso_entities_test"
       },
       {
         "namespaceId": "images",
