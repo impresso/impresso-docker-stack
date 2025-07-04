@@ -32,7 +32,6 @@ services:
       # DEBUG: 'impresso*'
     depends_on:
       - redis
-      - mysql-tunnel
       - impresso-celery
     # ports:
     #   - 3030:3030
@@ -51,7 +50,6 @@ services:
     restart: always
     depends_on:
       - redis
-      - mysql-tunnel
       - impresso-middle-layer
     volumes:
       - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
@@ -71,12 +69,6 @@ services:
         fluentd-address: localhost:24224
         fluentd-async: "true"
         tag: impresso.middle-layer-public
-  mysql-tunnel:
-    image: kroniak/ssh-client
-    restart: always
-    volumes:
-      - ./proxy_config:/root/.ssh
-    command: bash -c "chown root /root/.ssh/config && ssh -N impresso-mysql-tunnel"
   impresso-user-admin:
     image: impresso/impresso-user-admin:${IMPRESSO_USER_ADMIN_TAG:-latest}
     restart: always
@@ -86,7 +78,6 @@ services:
       ENV: docker
     depends_on:
       - redis
-      - mysql-tunnel
     volumes:
       - ./config/impresso-user-admin.env:/impresso-user-admin/.docker.env
       - ./data/impresso-user-admin/logs:/impresso-user-admin/logs:z
@@ -108,7 +99,6 @@ services:
       ENV: docker
     depends_on:
       - redis
-      - mysql-tunnel
     volumes:
       - ./config/impresso-user-admin.env:/impresso-user-admin/.docker.env
       - impresso-user-media:/impresso-user-admin/media:z
