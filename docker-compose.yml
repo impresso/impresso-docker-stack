@@ -25,7 +25,9 @@ services:
     image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG:-latest}
     restart: always
     container_name: impresso-middle-layer
-    env_file: "./.env"
+    env_file:
+      - "./.env"
+      - "./.env.nosecret"
     environment:
       NODE_ENV: docker
       # Uncomment if you want to debug the API
@@ -55,7 +57,9 @@ services:
       - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
       - ./config/impresso-middle-layer-public.json:/impresso-middle-layer/config/api-docker.json
       - middle-layer-cache:/impresso-middle-layer/data
-    env_file: "./.env"
+    env_file:
+      - "./.env"
+      - "./.env.nosecret"
     environment:
       NODE_ENV: docker
       # Setting host to API allows us to load the api.json config file on top of the docker.json
@@ -73,7 +77,9 @@ services:
     image: impresso/impresso-user-admin:${IMPRESSO_USER_ADMIN_TAG:-latest}
     restart: always
     container_name: impresso-user-admin
-    env_file: "./.env"
+    env_file:
+      - "./.env"
+      - "./.env.nosecret"
     environment:
       ENV: docker
     depends_on:
@@ -94,7 +100,9 @@ services:
     image: impresso/impresso-user-admin:${IMPRESSO_USER_ADMIN_TAG:-latest}
     container_name: impresso-celery
     restart: always
-    env_file: "./.env"
+    env_file:
+      - "./.env"
+      - "./.env.nosecret"
     environment:
       ENV: docker
     depends_on:
@@ -114,7 +122,9 @@ services:
     image: impresso/impresso-recsys:${IMPRESSO_RECSYS_TAG:-latest}
     container_name: impresso-recsys
     restart: always
-    env_file: "./.env"
+    env_file:
+      - "./.env"
+      - "./.env.nosecret"
     environment:
       DJANGO_SETTINGS_MODULE: impresso_recsys.docker_settings
     expose:
@@ -138,7 +148,9 @@ services:
     environment:
       IML_URL: http://impresso-middle-layer:3030
       IML_PATH: socket.io
-    env_file: "./.env"
+    env_file:
+      - "./.env"
+      - "./.env.nosecret"
     logging:
       driver: "fluentd"
       options:
@@ -149,7 +161,9 @@ services:
     image: impresso/impresso-content-auth:${IMPRESSO_AUTH_SERVICE_TAG:-latest}
     container_name: impresso-auth-service
     command: ["python", "-m", "impresso_content_auth.main", "--server"]
-    env_file: "./.env"
+    env_file:
+      - "./.env"
+      - "./.env.nosecret"
     environment:
       PORT: 8087
       JWT_SECRET: ${AUTH_SECRET_IML}
