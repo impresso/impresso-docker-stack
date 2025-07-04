@@ -42,8 +42,8 @@
   "sequelize": {
     "alias": "0069/impresso_dev",
     "dialect": "mysql",
-    "host": "mysql-tunnel",
-    "port": 3307,
+    "host": "dev-mysql-impresso.epfl.ch",
+    "port": 3306,
     "database": "impresso_test",
     "auth": {
       "user": "${DB_USERNAME}",
@@ -83,12 +83,15 @@
             "username": "${SOLR_WRITER_USERNAME}",
             "password": "${SOLR_WRITER_PASSWORD}"
           }
-        },
-        "proxy": { "host": "socks-proxy", "port": 1080 }
+        }
       }
     ],
     "namespaces": [
-      { "namespaceId": "search", "serverId": "default", "index": "impresso_dev" },
+      {
+        "namespaceId": "search",
+        "serverId": "default",
+        "index": "impresso_dev"
+      },
       {
         "namespaceId": "mentions",
         "serverId": "default",

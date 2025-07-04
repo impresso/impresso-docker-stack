@@ -8,20 +8,20 @@ Copy the example environment file:
 cp .env.example .env
 ```
 
-Edit the `.env` file to set the correct values for your environment.
+Edit the `.env` file to set the correct secret values for your environment.
 
 ## Running in production
 
 Production servers do not require a proxy.
 
 ```shell
-docker compose  --env-file ./.env up
+docker compose  --env-file ./.env --env-file ./.env.nosecret up
 ```
 
 or
 
 ```shell
-docker compose  --env-file ./.env up -d
+docker compose  --env-file ./.env --env-file ./.env.nosecret up -d
 ```
 
 ## Running in dev (staging)
@@ -29,7 +29,7 @@ docker compose  --env-file ./.env up -d
 Running in staging (detached mode), with the watchtower service that updates the images every 5 minutes:
 
 ```shell
-docker compose -f docker-compose.yml -f docker-compose.watcher.yml  --env-file ./.env up -d
+docker compose -f docker-compose.yml -f docker-compose.watcher.yml  --env-file ./.env up --env-file ./.env.nosecret -d
 ```
 
 Reading logs in production:
@@ -45,13 +45,13 @@ The `.env.example` contains `latest` images of the services in docker-compose an
 Running outside of the production servers requires a proxy.
 
 ```shell
-docker compose --env-file ./.env --profile with_proxy up
+docker compose --env-file ./.env --env-file ./.env.nosecret --profile with_proxy up
 ```
 
 If barista service needs to be enabled, add `--profile barista` to the command above.
 
 ```shell
-docker compose --env-file ./.env --profile with_proxy --profile barista up
+docker compose --env-file ./.env --env-file ./.env.nosecret --profile with_proxy --profile barista up
 ```
 
 ## Configuration

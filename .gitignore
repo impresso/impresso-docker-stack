@@ -6,6 +6,7 @@ config
 .env
 .env.*
 !.env.example
+!.env.nosecret-dev
 
 proxy_config/*
 !proxy_config/.gitkeep
