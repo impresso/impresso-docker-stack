@@ -13,6 +13,7 @@ services:
         tag: impresso.redis
   socks-proxy:
     image: kroniak/ssh-client
+    container_name: socks-proxy
     restart: always
     profiles:
       - with_proxy
