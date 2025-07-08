@@ -44,7 +44,7 @@
     "dialect": "mysql",
     "host": "dev-mysql-impresso.epfl.ch",
     "port": 3306,
-    "database": "impresso_test",
+    "database": "impresso_dev",
     "auth": {
       "user": "${DB_USERNAME}",
       "pass": "${DB_PASSWORD}"
