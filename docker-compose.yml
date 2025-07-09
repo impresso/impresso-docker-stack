@@ -11,9 +11,9 @@ services:
         fluentd-address: localhost:24224
         fluentd-async: "true"
         tag: impresso.redis
-  socks-proxy:
+  impresso-socks-proxy:
     image: kroniak/ssh-client
-    container_name: socks-proxy
+    container_name: impresso-socks-proxy
     restart: always
     profiles:
       - with_proxy
@@ -171,7 +171,7 @@ services:
       SOLR_BASE_URL: ${SOLR_BASE_URL}
       SOLR_USERNAME: ${SOLR_READER_USERNAME}
       SOLR_PASSWORD: ${SOLR_READER_PASSWORD}
-      SOLR_PROXY_URL: socks5://socks-proxy:1080
+      SOLR_PROXY_URL: socks5://impresso-socks-proxy:1080
       SOLR_CONTENT_ITEM_COLLECTION: ${SOLR_CONTENT_ITEM_INDEX}
       LOG_LEVEL: ${AUTH_SERVICE_LOG_LEVEL:-INFO}
     ports:
