@@ -13,4 +13,4 @@ SOLR_BASE_URL = SOLR_BASE_URL_NO_AUTH.replace(
     "://", f"://{SOLR_USERNAME}:{SOLR_PASSWORD}@"
 )
 
-SOLR_TOPICS_COLLECTION = "impresso_topics"
+SOLR_TOPICS_COLLECTION = "02_impresso_topics"

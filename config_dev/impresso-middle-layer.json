@@ -90,43 +90,43 @@
       {
         "namespaceId": "search",
         "serverId": "default",
-        "index": "impresso_dev"
+        "index": "01_impresso_main"
       },
       {
         "namespaceId": "mentions",
         "serverId": "default",
-        "index": "impresso_mentions_test"
+        "index": "08_impresso_mentions"
       },
       {
         "namespaceId": "topics",
         "serverId": "default",
-        "index": "impresso_topics"
+        "index": "02_impresso_topics"
       },
       {
         "namespaceId": "entities",
         "serverId": "default",
-        "index": "impresso_entities_test"
+        "index": "09_impresso_entities"
       },
       {
         "namespaceId": "images",
         "serverId": "default",
-        "index": "impresso_images",
+        "index": "03_impresso_images",
         "schemaVersion": "v2"
       },
       {
         "namespaceId": "tr_passages",
         "serverId": "default",
-        "index": "impresso_tr_passages_dev"
+        "index": "05_impresso_tr_passages"
       },
       {
         "namespaceId": "tr_clusters",
         "serverId": "default",
-        "index": "impresso_tr_clusters"
+        "index": "04_impresso_tr_clusters"
       },
       {
         "namespaceId": "word_embeddings",
         "serverId": "default",
-        "index": "impresso_word_emb"
+        "index": "07_impresso_word_emb"
       }
     ]
   },
