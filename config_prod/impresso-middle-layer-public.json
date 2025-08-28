@@ -1,0 +1,26 @@
+{
+  "$schema": "https://raw.githubusercontent.com/impresso/impresso-middle-layer/refs/heads/develop/src/schema/common/config.json",
+  "isPublicApi": true,
+  "publicApiPrefix": "/public-api/v1",
+  "rateLimiter": {
+    "enabled": true,
+    "capacity": 600,
+    "refillRate": 1
+  },
+  "authentication": {
+    "secret": "${AUTH_SECRET_IML_PUBLIC}",
+    "jwtOptions": {
+      "audience": "https://impresso-project.ch/public-api/v1",
+      "expiresIn": "8h"
+    },
+    "cookie": {
+      "enabled": false
+    }
+  },
+  "imlAuthConfiguration": {
+    "secret": "${AUTH_SECRET_IML}",
+    "jwtOptions": {
+      "audience": "https://impresso-project.ch/app"
+    }
+  }
+}
