@@ -1,0 +1,116 @@
+{
+  "$schema": "https://raw.githubusercontent.com/impresso/impresso-middle-layer/refs/heads/develop/src/schema/common/config.json",
+  "host": "0.0.0.0",
+  "redis": {
+    "host": "redis"
+  },
+  "celery": {
+    "enable": true,
+    "brokerUrl": "redis://redis/4",
+    "backendUrl": "redis://redis/5"
+  },
+  "authentication": {
+    "secret": "${AUTH_SECRET_IML}",
+    "jwtOptions": {
+      "audience": "https://impresso-project.ch/app"
+    }
+  },
+  "images": {
+    "baseUrl": "https://impresso-project.ch/api/proxy/iiif",
+    "proxy": {
+      "defaultSourceId": "epfl-cantaloupe",
+      "sources": [
+        {
+          "id": "epfl-cantaloupe",
+          "endpoint": "https://iiif-impresso.epfl.ch/iiif/3/",
+          "auth": {
+            "user": "${IIIF_CANTALOUPE_USERNAME}",
+            "pass": "${IIIF_CANTALOUPE_PASSWORD}"
+          }
+        }
+      ]
+    }
+  },
+  "sequelize": {
+    "dialect": "mysql",
+    "host": "${DB_HOSTNAME}",
+    "port": 3306,
+    "database": "${DB_DATABASE}",
+    "auth": {
+      "user": "${DB_USERNAME}",
+      "pass": "${DB_PASSWORD}"
+    }
+  },
+  "recommender": {
+    "articles": {
+      "endpoint": "https://impresso-project.ch/recsys/recommend/"
+    }
+  },
+  "solrConfiguration": {
+    "servers": [
+      {
+        "id": "default",
+        "baseUrl": "${SOLR_BASE_URL}",
+        "auth": {
+          "read": {
+            "username": "${SOLR_READER_USERNAME}",
+            "password": "${SOLR_READER_PASSWORD}"
+          },
+          "write": {
+            "username": "${SOLR_WRITER_USERNAME}",
+            "password": "${SOLR_WRITER_PASSWORD}"
+          }
+        }
+      }
+    ],
+    "namespaces": [
+      {
+        "namespaceId": "search",
+        "serverId": "default",
+        "index": "01_impresso_main"
+      },
+      {
+        "namespaceId": "topics",
+        "serverId": "default",
+        "index": "02_impresso_topics"
+      },
+      {
+        "namespaceId": "images",
+        "serverId": "default",
+        "index": "03_impresso_images",
+        "schemaVersion": "v2"
+      },
+      {
+        "namespaceId": "tr_clusters",
+        "serverId": "default",
+        "index": "04_impresso_tr_clusters"
+      },
+      {
+        "namespaceId": "tr_passages",
+        "serverId": "default",
+        "index": "05_impresso_tr_passages"
+      },
+      {
+        "namespaceId": "word_embeddings",
+        "serverId": "default",
+        "index": "07_impresso_word_emb"
+      },
+      {
+        "namespaceId": "mentions",
+        "serverId": "default",
+        "index": "08_impresso_mentions"
+      },
+      {
+        "namespaceId": "entities",
+        "serverId": "default",
+        "index": "09_impresso_entities"
+      }
+    ]
+  },
+  "features": {
+    "barista": { "enabled": false, "url": "http://impresso-barista:8000/chat" }
+  },
+  "callbackUrls": {
+    "passwordReset": "https://impresso-project.ch/app/password-reset"
+  }
+}

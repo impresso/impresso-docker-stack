@@ -15,13 +15,13 @@ Edit the `.env` file to set the correct secret values for your environment.
 Production servers do not require a proxy.
 
 ```shell
-docker compose  --env-file ./.env --env-file ./.env.nosecret up
+docker compose  --env-file ./.env.prod --env-file ./.env.nosecret-prod up
 ```
 
 or
 
 ```shell
-docker compose  --env-file ./.env --env-file ./.env.nosecret up -d
+docker compose  --env-file ./.env.prod --env-file ./.env.nosecret-prod --profile with_proxy --profile barista up -d
 ```
 
 ## Running in dev (staging)
@@ -71,13 +71,13 @@ ln -s config_prod config
 
 ### Proxy and extra nginx configuration
 
-Proxy (ssh tunnel) configuration should be placed in `proxy_config` directory. If Nginx configuration needs extra files, they should be placed in `nginx_config` directory.
+Proxy (ssh tunnel) configuration should be placed in `proxy_config` directory. If nginx configuration needs extra files, they should be placed in `nginx_config` directory.
 
 A special note about the database. Our setup assumes the database is accessed via an SSH tunnel to the database host. If the database port is accessible directly, you can simplify the configuration by setting the db hostname, port and credentials in the relevant config files, commenting out the `mysql-tunnel` section in `docker-compose.yml`. In this case you also do not need the files in the `config/ssh` folder, those are used for the DB tunnel only.
 
 ## Host configuration
 
-Increase the default limit of open files on the host server to increase the maximum allowed number of connections. See [here](https://socket.io/docs/v4/performance-tuning/#at-the-os-level).
+Increase the default limit of open files on the host server to increase the maximum allowed number of connections. See [socket.io performance tuning](https://socket.io/docs/v4/performance-tuning/#at-the-os-level).
 
 ## Apps versions
 
