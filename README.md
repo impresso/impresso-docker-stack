@@ -12,6 +12,14 @@ Edit the `.env` file to set the correct secret values for your environment.
 
 ## Running in production
 
+Link production config files and directories:
+
+```shell
+ln -s config_prod config
+ln -s .env.nosecret-prod .env.nosecret
+ln -s .env.prod .env
+```
+
 Production servers do not require a proxy.
 
 ```shell
@@ -25,6 +33,15 @@ docker compose  --env-file ./.env.prod --env-file ./.env.nosecret-prod --profile
 ```
 
 ## Running in dev (staging)
+
+Link dev config files and directories:
+
+```shell
+ln -s config_dev config
+ln -s .env.nosecret-dev .env.nosecret
+ln -s .env.dev .env
+```
+
 
 Running in staging (detached mode), with the watchtower service that updates the images every 5 minutes:
 
