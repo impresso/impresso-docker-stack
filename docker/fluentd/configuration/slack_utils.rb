@@ -2,6 +2,10 @@ require 'net/http'
 require 'uri'
 require 'json'
 
+excluded_patterns = [
+  /Warning: got packets out of order/i,
+]
+
 def send_to_slack(messages, webhook_url)
   payload = {
     'message' => messages.join("\n")
@@ -35,7 +39,10 @@ def process_slack_messages(file_path, webhook_url)
         message = JSON.parse(line)
         
         request = entry_to_message_string(message)
-        messages << request
+        
+        # Skip messages that match any of the excluded patterns
+        should_exclude = excluded_patterns.any? { |pattern| request =~ pattern }
+        messages << request unless should_exclude
 
         # File.open('/tmp/matomo.log', 'a') do |file|
         #   file.puts(JSON.pretty_generate(entry))
@@ -47,8 +54,8 @@ def process_slack_messages(file_path, webhook_url)
     end.compact
 
     if messages.any?
-      # split into chunks of 10 messages to avoid Slack API limits of 40000 characters
-      messages.each_slice(10) do |chunk|
+      # split into chunks of 5 messages to avoid Slack API limits of 40000 characters
+      messages.each_slice(5) do |chunk|
         send_to_slack(chunk, webhook_url)
       end
     end
