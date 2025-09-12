@@ -54,8 +54,8 @@ def process_slack_messages(file_path, webhook_url)
     end.compact
 
     if messages.any?
-      # split into chunks of 5 messages to avoid Slack API limits of 40000 characters
-      messages.each_slice(5) do |chunk|
+      # split into chunks of 3 messages to avoid Slack API limits of 40000 characters
+      messages.each_slice(3) do |chunk|
         send_to_slack(chunk, webhook_url)
       end
     end
