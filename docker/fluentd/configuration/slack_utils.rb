@@ -2,10 +2,6 @@ require 'net/http'
 require 'uri'
 require 'json'
 
-excluded_patterns = [
-  /Warning: got packets out of order/i,
-]
-
 def send_to_slack(messages, webhook_url)
   payload = {
     'message' => messages.join("\n")
@@ -39,6 +35,10 @@ def process_slack_messages(file_path, webhook_url)
         message = JSON.parse(line)
         
         request = entry_to_message_string(message)
+
+        excluded_patterns = [
+          /Warning: got packets out of order/i,
+        ]
         
         # Skip messages that match any of the excluded patterns
         should_exclude = excluded_patterns.any? { |pattern| request =~ pattern }
