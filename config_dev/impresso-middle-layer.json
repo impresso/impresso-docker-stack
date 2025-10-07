@@ -127,6 +127,11 @@
         "namespaceId": "word_embeddings",
         "serverId": "default",
         "index": "07_impresso_word_emb"
+      },
+      { 
+        "namespaceId": "collection_items", 
+        "serverId": "cloud-dev", 
+        "index": "11_impresso_user_collections_test"
       }
     ]
   },
