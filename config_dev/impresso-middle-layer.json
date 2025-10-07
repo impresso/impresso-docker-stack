@@ -130,7 +130,7 @@
       },
       { 
         "namespaceId": "collection_items", 
-        "serverId": "cloud-dev", 
+        "serverId": "default", 
         "index": "11_impresso_user_collections_test"
       }
     ]
