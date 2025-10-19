@@ -132,6 +132,11 @@
         "namespaceId": "collection_items", 
         "serverId": "default", 
         "index": "11_impresso_user_collections_test"
+      },
+      { 
+        "namespaceId": "subdoc_embeddings_experiment",
+        "serverId": "cloud-dev",
+        "index": "10_impresso_subdoc_emb_test"
       }
     ]
   },
