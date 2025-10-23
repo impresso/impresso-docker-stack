@@ -41,15 +41,15 @@
     "rewriteRules": [
       {
         "pattern": "^(https://dhlabsrv17.epfl.ch/iiif_impresso)",
-        "replacement": "https://dev.impresso-project.ch/proxy/iiif"
+        "replacement": "/proxy/iiif"
       },
       {
         "pattern": "^(https://impresso-project.ch/assets/images)",
-        "replacement": "https://dev.impresso-project.ch/assets/images"
+        "replacement": "/assets/images"
       },
       {
         "pattern": "^(https://impresso-project.ch/api/proxy/iiif)",
-        "replacement": "https://dev.impresso-project.ch/proxy/iiif"
+        "replacement": "/proxy/iiif"
       },
       {
         "pattern": "^(https://scriptorium.bcu-lausanne.ch/api/iiif-img)",
