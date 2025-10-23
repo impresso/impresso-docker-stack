@@ -37,7 +37,25 @@
           }
         }
       ]
-    }
+    },
+    "rewriteRules": [
+      {
+        "pattern": "^(https://dhlabsrv17.epfl.ch/iiif_impresso)",
+        "replacement": "https://dev.impresso-project.ch/proxy/iiif"
+      },
+      {
+        "pattern": "^(https://impresso-project.ch/assets/images)",
+        "replacement": "https://dev.impresso-project.ch/assets/images"
+      },
+      {
+        "pattern": "^(https://impresso-project.ch/api/proxy/iiif)",
+        "replacement": "https://dev.impresso-project.ch/proxy/iiif"
+      },
+      {
+        "pattern": "^(https://scriptorium.bcu-lausanne.ch/api/iiif-img)",
+        "replacement": "https://www.scriptorium.ch/api/iiif-img"
+      }
+    ]
   },
   "sequelize": {
     "alias": "0069/impresso_dev",
@@ -137,6 +155,11 @@
         "namespaceId": "subdoc_embeddings_experiment",
         "serverId": "cloud-dev",
         "index": "10_impresso_subdoc_emb_test"
+      },
+      { 
+        "namespaceId": "entity_profiles",
+        "serverId": "cloud-dev",
+        "index": "12_impresso_entity_profiles_test"
       }
     ]
   },
