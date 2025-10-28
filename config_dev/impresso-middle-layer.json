@@ -153,12 +153,12 @@
       },
       { 
         "namespaceId": "subdoc_embeddings_experiment",
-        "serverId": "cloud-dev",
+        "serverId": "default",
         "index": "10_impresso_subdoc_emb_test"
       },
       { 
         "namespaceId": "entity_profiles",
-        "serverId": "cloud-dev",
+        "serverId": "default",
         "index": "12_impresso_entity_profiles_test"
       }
     ]
