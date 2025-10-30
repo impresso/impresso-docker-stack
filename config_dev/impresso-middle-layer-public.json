@@ -3,7 +3,7 @@
   "isPublicApi": true,
   "publicApiPrefix": "/public-api/v1",
   "rateLimiter": {
-    "enabled": true,
+    "enabled": false,
     "capacity": 600,
     "refillRate": 1
   },
