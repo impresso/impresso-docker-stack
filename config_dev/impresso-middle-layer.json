@@ -18,22 +18,14 @@
   "images": {
     "baseUrl": "https://dev.impresso-project.ch/api/proxy/iiif",
     "proxy": {
-      "defaultSourceId": "epfl-cantaloupe",
+      "defaultSourceId": "epfl-default",
       "sources": [
         {
-          "id": "epfl-loris",
-          "endpoint": "https://dhlabsrv17.epfl.ch/iiif_impresso/",
-          "auth": {
-            "user": "${IIIF_LORS_USERNAME}",
-            "pass": "${IIIF_LORS_PASSWORD}"
-          }
-        },
-        {
-          "id": "epfl-cantaloupe",
+          "id": "epfl-default",
           "endpoint": "https://iiif-impresso.epfl.ch/iiif/3/",
           "auth": {
-            "user": "${IIIF_CANTALOUPE_USERNAME}",
-            "pass": "${IIIF_CANTALOUPE_PASSWORD}"
+            "user": "${IIIF_SERVER_USERNAME}",
+            "pass": "${IIIF_SERVER_PASSWORD}"
           }
         }
       ]
@@ -41,19 +33,23 @@
     "rewriteRules": [
       {
         "pattern": "^(https://dhlabsrv17.epfl.ch/iiif_impresso)",
-        "replacement": "/proxy/iiif"
-      },
-      {
-        "pattern": "^(https://impresso-project.ch/assets/images)",
-        "replacement": "/assets/images"
+        "replacement": "${BASE_URL}/media/iiif"
       },
       {
         "pattern": "^(https://impresso-project.ch/api/proxy/iiif)",
-        "replacement": "/proxy/iiif"
+        "replacement": "${BASE_URL}/media/iiif"
+      },
+      {
+        "pattern": "^(/proxy/iiif)",
+        "replacement": "${BASE_URL}/media/iiif"
+      },
+      {
+        "pattern": "^(https://impresso-project.ch/assets/images)",
+        "replacement": "${BASE_URL}/assets/images"
       },
       {
         "pattern": "^(https://scriptorium.bcu-lausanne.ch/api/iiif-img)",
-        "replacement": "https://www.scriptorium.ch/api/iiif-img"
+        "replacement": "https://www.scriptorium.ch/api/iiif-img/v3"
       }
     ]
   },
@@ -75,20 +71,6 @@
   },
   "solrConfiguration": {
     "servers": [
-      {
-        "id": "old",
-        "baseUrl": "${SOLR_OLD_BASE_URL}",
-        "auth": {
-          "read": {
-            "username": "${SOLR_OLD_READER_USERNAME}",
-            "password": "${SOLR_OLD_READER_PASSWORD}"
-          },
-          "write": {
-            "username": "${SOLR_OLD_WRITER_USERNAME}",
-            "password": "${SOLR_OLD_WRITER_PASSWORD}"
-          }
-        }
-      },
       {
         "id": "default",
         "baseUrl": "${SOLR_BASE_URL}",

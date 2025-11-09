@@ -18,18 +18,40 @@
   "images": {
     "baseUrl": "https://impresso-project.ch/api/proxy/iiif",
     "proxy": {
-      "defaultSourceId": "epfl-cantaloupe",
+      "defaultSourceId": "epfl-default",
       "sources": [
         {
-          "id": "epfl-cantaloupe",
+          "id": "epfl-default",
           "endpoint": "https://iiif-impresso.epfl.ch/iiif/3/",
           "auth": {
-            "user": "${IIIF_CANTALOUPE_USERNAME}",
-            "pass": "${IIIF_CANTALOUPE_PASSWORD}"
+            "user": "${IIIF_SERVER_USERNAME}",
+            "pass": "${IIIF_SERVER_PASSWORD}"
           }
         }
       ]
-    }
+    },
+    "rewriteRules": [
+      {
+        "pattern": "^(https://dhlabsrv17.epfl.ch/iiif_impresso)",
+        "replacement": "${BASE_URL}/media/iiif"
+      },
+      {
+        "pattern": "^(https://impresso-project.ch/api/proxy/iiif)",
+        "replacement": "${BASE_URL}/media/iiif"
+      },
+      {
+        "pattern": "^(/proxy/iiif)",
+        "replacement": "${BASE_URL}/media/iiif"
+      },
+      {
+        "pattern": "^(https://impresso-project.ch/assets/images)",
+        "replacement": "${BASE_URL}/assets/images"
+      },
+      {
+        "pattern": "^(https://scriptorium.bcu-lausanne.ch/api/iiif-img)",
+        "replacement": "https://www.scriptorium.ch/api/iiif-img/v3"
+      }
+    ]
   },
   "sequelize": {
     "dialect": "mysql",
