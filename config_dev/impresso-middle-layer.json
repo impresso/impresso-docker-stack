@@ -33,19 +33,19 @@
     "rewriteRules": [
       {
         "pattern": "^(https://dhlabsrv17.epfl.ch/iiif_impresso)",
-        "replacement": "${BASE_URL}/media/iiif"
+        "replacement": "https://dev.impresso-project.ch/media/iiif"
       },
       {
         "pattern": "^(https://impresso-project.ch/api/proxy/iiif)",
-        "replacement": "${BASE_URL}/media/iiif"
+        "replacement": "https://dev.impresso-project.ch/media/iiif"
       },
       {
         "pattern": "^(/proxy/iiif)",
-        "replacement": "${BASE_URL}/media/iiif"
+        "replacement": "https://dev.impresso-project.ch/media/iiif"
       },
       {
         "pattern": "^(https://impresso-project.ch/assets/images)",
-        "replacement": "${BASE_URL}/assets/images"
+        "replacement": "https://dev.impresso-project.ch/assets/images"
       },
       {
         "pattern": "^(https://scriptorium.bcu-lausanne.ch/api/iiif-img)",
