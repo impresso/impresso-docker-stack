@@ -131,7 +131,7 @@
       { 
         "namespaceId": "collection_items", 
         "serverId": "default", 
-        "index": "11_impresso_user_collections_test"
+        "index": "11_impresso_user_collections"
       },
       { 
         "namespaceId": "subdoc_embeddings_experiment",
