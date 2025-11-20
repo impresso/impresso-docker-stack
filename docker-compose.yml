@@ -4,7 +4,15 @@ services:
     restart: always
     volumes:
       - redis-data:/data
-    entrypoint: redis-server --appendonly yes
+    # Disabling AOF for performance reasons as we don't need durability for caching
+    # entrypoint: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
     logging:
       driver: "fluentd"
       options:
@@ -173,6 +181,7 @@ services:
       SOLR_PASSWORD: ${SOLR_READER_PASSWORD}
       SOLR_CONTENT_ITEM_COLLECTION: ${SOLR_CONTENT_ITEM_INDEX}
       LOG_LEVEL: ${AUTH_SERVICE_LOG_LEVEL:-INFO}
+      REDIS_URL: redis://redis:6379/0
     ports:
       - "8087:8087"
   impresso-frontend:
