@@ -64,6 +64,13 @@
       "pass": "${DB_PASSWORD}"
     }
   },
+  "media": {
+    "host": "https://dev.impresso-project.ch",
+    "path": "/media",
+    "protectedPath": "/protected-media",
+    "exportFolder": "/impresso-middle-layer/user-media",
+    "services": ["jobs"]
+  },
   "recommender": {
     "articles": {
       "endpoint": "https://dev.impresso-project.ch/recsys/recommend/"

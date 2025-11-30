@@ -49,6 +49,7 @@ services:
     volumes:
       - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
       - middle-layer-cache:/impresso-middle-layer/data
+      - impresso-user-media:/impresso-middle-layer/user-media:z
     logging:
       driver: "fluentd"
       options:
@@ -66,6 +67,7 @@ services:
       - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
       - ./config/impresso-middle-layer-public.json:/impresso-middle-layer/config/api-docker.json
       - middle-layer-cache:/impresso-middle-layer/data
+      - impresso-user-media:/impresso-middle-layer/user-media:z
     env_file:
       - "./.env"
       - "./.env.nosecret"
