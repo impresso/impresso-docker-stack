@@ -3,21 +3,22 @@ services:
     image: redis:alpine
     restart: always
     volumes:
-      - redis-data:/data
+      - ${REDIS_DATA_PATH}:/data
+      # - redis-data:/data
     # Disabling AOF for performance reasons as we don't need durability for caching
     # entrypoint: redis-server --appendonly yes
     ports:
-      - "6379:6379"
+      - '6379:6379'
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 1s
       timeout: 3s
       retries: 30
     logging:
-      driver: "fluentd"
+      driver: 'fluentd'
       options:
         fluentd-address: localhost:24224
-        fluentd-async: "true"
+        fluentd-async: 'true'
         tag: impresso.redis
   impresso-socks-proxy:
     image: kroniak/ssh-client
@@ -35,8 +36,8 @@ services:
     restart: always
     container_name: impresso-middle-layer
     env_file:
-      - "./.env"
-      - "./.env.nosecret"
+      - './.env'
+      - './.env.nosecret'
     environment:
       NODE_ENV: docker
       # Uncomment if you want to debug the API
@@ -51,10 +52,10 @@ services:
       - middle-layer-cache:/impresso-middle-layer/data
       - impresso-user-media:/impresso-middle-layer/user-media:z
     logging:
-      driver: "fluentd"
+      driver: 'fluentd'
       options:
         fluentd-address: localhost:24224
-        fluentd-async: "true"
+        fluentd-async: 'true'
         tag: impresso.middle-layer
   impresso-middle-layer-public:
     image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG:-latest}
@@ -69,8 +70,8 @@ services:
       - middle-layer-cache:/impresso-middle-layer/data
       - impresso-user-media:/impresso-middle-layer/user-media:z
     env_file:
-      - "./.env"
-      - "./.env.nosecret"
+      - './.env'
+      - './.env.nosecret'
     environment:
       NODE_ENV: docker
       # Setting host to API allows us to load the api.json config file on top of the docker.json
@@ -79,18 +80,18 @@ services:
       # Uncomment if you want to debug the API
       # DEBUG: 'impresso*'
     logging:
-      driver: "fluentd"
+      driver: 'fluentd'
       options:
         fluentd-address: localhost:24224
-        fluentd-async: "true"
+        fluentd-async: 'true'
         tag: impresso.middle-layer-public
   impresso-user-admin:
     image: impresso/impresso-user-admin:${IMPRESSO_USER_ADMIN_TAG:-latest}
     restart: always
     container_name: impresso-user-admin
     env_file:
-      - "./.env"
-      - "./.env.nosecret"
+      - './.env'
+      - './.env.nosecret'
     environment:
       ENV: docker
     depends_on:
@@ -102,18 +103,18 @@ services:
     # ports:
     # - 8088:8000
     logging:
-      driver: "fluentd"
+      driver: 'fluentd'
       options:
         fluentd-address: localhost:24224
-        fluentd-async: "true"
+        fluentd-async: 'true'
         tag: impresso.user-admin
   impresso-celery:
     image: impresso/impresso-user-admin:${IMPRESSO_USER_ADMIN_TAG:-latest}
     container_name: impresso-celery
     restart: always
     env_file:
-      - "./.env"
-      - "./.env.nosecret"
+      - './.env'
+      - './.env.nosecret'
     environment:
       ENV: docker
     depends_on:
@@ -124,29 +125,29 @@ services:
       - ./data/impresso-user-admin/logs:/impresso-user-admin/logs:z
     command: celery -A impresso worker -l info
     logging:
-      driver: "fluentd"
+      driver: 'fluentd'
       options:
         fluentd-address: localhost:24224
-        fluentd-async: "true"
+        fluentd-async: 'true'
         tag: impresso.celery
   impresso-recsys:
     image: impresso/impresso-recsys:${IMPRESSO_RECSYS_TAG:-latest}
     container_name: impresso-recsys
     restart: always
     env_file:
-      - "./.env"
-      - "./.env.nosecret"
+      - './.env'
+      - './.env.nosecret'
     environment:
       DJANGO_SETTINGS_MODULE: impresso_recsys.docker_settings
     expose:
-      - "8000"
+      - '8000'
     volumes:
       - ./config/recsys_config.py:/app/impresso_recsys/docker_settings.py
     logging:
-      driver: "fluentd"
+      driver: 'fluentd'
       options:
         fluentd-address: localhost:24224
-        fluentd-async: "true"
+        fluentd-async: 'true'
         tag: impresso.recsys
   impresso-barista:
     image: impresso/impresso-barista:${IMPRESSO_BARISTA_TAG:-latest}
@@ -155,26 +156,26 @@ services:
     profiles:
       - barista
     expose:
-      - "8000"
+      - '8000'
     environment:
       IML_URL: http://impresso-middle-layer:3030
       IML_PATH: socket.io
     env_file:
-      - "./.env"
-      - "./.env.nosecret"
+      - './.env'
+      - './.env.nosecret'
     logging:
-      driver: "fluentd"
+      driver: 'fluentd'
       options:
         fluentd-address: localhost:24224
-        fluentd-async: "true"
+        fluentd-async: 'true'
         tag: impresso.barista
   auth-service:
     image: impresso/impresso-content-auth:${IMPRESSO_AUTH_SERVICE_TAG:-latest}
     container_name: impresso-auth-service
-    command: ["python", "-m", "impresso_content_auth.main", "--server"]
+    command: ['python', '-m', 'impresso_content_auth.main', '--server']
     env_file:
-      - "./.env"
-      - "./.env.nosecret"
+      - './.env'
+      - './.env.nosecret'
     environment:
       PORT: 8087
       JWT_SECRET: ${AUTH_SECRET_IML}
@@ -185,7 +186,7 @@ services:
       LOG_LEVEL: ${AUTH_SERVICE_LOG_LEVEL:-INFO}
       REDIS_URL: redis://redis:6379/0
     ports:
-      - "8087:8087"
+      - '8087:8087'
   impresso-frontend:
     image: impresso/impresso-frontend:${IMPRESSO_FRONTEND_TAG}
     container_name: impresso-frontend
@@ -225,7 +226,7 @@ services:
     container_name: impresso-nginx
     restart: always
     ports:
-      - "${NGINX_PORT:-80}:80"
+      - '${NGINX_PORT:-80}:80'
     depends_on:
       - impresso-middle-layer
       - impresso-user-admin
@@ -245,13 +246,13 @@ services:
     # command: [nginx-debug, '-g', 'daemon off;']
     # Run healthcheck script
     env_file:
-      - "./.env"
+      - './.env'
     healthcheck:
-      test: "sh /tmp/healthcheck.sh"
+      test: 'sh /tmp/healthcheck.sh'
       timeout: 4s
       retries: 1
     labels:
-      - "com.centurylinklabs.watchtower.depends-on=impresso-recsys,impresso-user-admin,impresso-middle-layer-public,impresso-middle-layer"
+      - 'com.centurylinklabs.watchtower.depends-on=impresso-recsys,impresso-user-admin,impresso-middle-layer-public,impresso-middle-layer'
   fluentd:
     container_name: impresso-fluentd
     restart: always
@@ -264,12 +265,13 @@ services:
       SLACK_ERRORS_WEBHOOK_URL: ${SLACK_ERRORS_WEBHOOK_URL}
       SLACK_FEEDBACK_WEBHOOK_URL: ${SLACK_FEEDBACK_WEBHOOK_URL}
     ports:
-      - "24224:24224"
-      - "24224:24224/udp"
+      - '24224:24224'
+      - '24224:24224/udp'
 volumes:
   frontend-app-files:
   iiif-widget-app-files:
-  redis-data:
+  # use different volume for redis data (local storage)
+  # redis-data:
   impresso-user-media:
   middle-layer-cache:
   impresso-github-io-v1-files:
