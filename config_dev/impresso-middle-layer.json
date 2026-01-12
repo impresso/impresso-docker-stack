@@ -56,9 +56,9 @@
   "sequelize": {
     "alias": "0069/impresso_dev",
     "dialect": "mysql",
-    "host": "dev-mysql-impresso.epfl.ch",
+    "host": "${DB_HOSTNAME}",
     "port": 3306,
-    "database": "impresso_dev",
+    "database": "${DB_DATABASE}",
     "auth": {
       "user": "${DB_USERNAME}",
       "pass": "${DB_PASSWORD}"
@@ -135,17 +135,17 @@
         "serverId": "default",
         "index": "07_impresso_word_emb"
       },
-      { 
-        "namespaceId": "collection_items", 
-        "serverId": "default", 
+      {
+        "namespaceId": "collection_items",
+        "serverId": "default",
         "index": "11_impresso_user_collections"
       },
-      { 
+      {
         "namespaceId": "subdoc_embeddings_experiment",
         "serverId": "default",
         "index": "10_impresso_subdoc_emb_test"
       },
-      { 
+      {
         "namespaceId": "entity_profiles",
         "serverId": "default",
         "index": "12_impresso_entity_profiles_test"
