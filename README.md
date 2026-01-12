@@ -42,11 +42,15 @@ ln -s .env.nosecret-dev .env.nosecret
 ln -s .env.dev .env
 ```
 
-
 Running in staging (detached mode), with the watchtower service that updates the images every 5 minutes:
 
 ```shell
-docker compose -f docker-compose.yml -f docker-compose.watcher.yml  --env-file ./.env up --env-file ./.env.nosecret -d
+docker compose \
+  --env-file ./.env \
+  --env-file ./.env.nosecret \
+  --profile barista \
+  -f docker-compose.yml -f docker-compose.watcher.yml \
+  -p impresso up -d
 ```
 
 Reading logs in production:
@@ -77,8 +81,8 @@ Docker compose expects several files located in `config` directory.
 
 Several directories are provided for different configurations:
 
-* `config_prod` - production configuration
-* `config_dev` - development configuration
+- `config_prod` - production configuration
+- `config_dev` - development configuration
 
 To use the suitable configuration, create a symlink to the desired configuration directory:
 
@@ -106,9 +110,9 @@ Tags of `impresso` docker images are read from the `.env` file. The default file
 
 When building docker container for the app make sure:
 
-* webpack compiles the app with `PUBLIC_PATH` environmental variable set to `/app/` (assuming that the app base URL in `nginx` configuration is `/app`).
-* `BASE_URL` in `prod.env.js` is set to `'"/app"'` (assuming that the app base URL in `nginx` configuration is `/app`).
-* `MIDDLELAYER_API` in `prod.env.js` is set to `'""'`
-* `MIDDLELAYER_API_PATH` in `prod.env.js` is set to `'"/api"'` (assuming that middle layer API base URL in `nginx` configuration is `/api`)
-* `MIDDLELAYER_API_SOCKET_PATH` in `prod.env.js` is set to `'"/api/socket.io/"'` (assuming that middle layer API base URL in `nginx` configuration is `/api`)
-* `MIDDLELAYER_MEDIA_PATH`  in `prod.env.js` is set to `'"/api/media"'` (assuming that the api base URL in `nginx` configuration is `/api`)
+- webpack compiles the app with `PUBLIC_PATH` environmental variable set to `/app/` (assuming that the app base URL in `nginx` configuration is `/app`).
+- `BASE_URL` in `prod.env.js` is set to `'"/app"'` (assuming that the app base URL in `nginx` configuration is `/app`).
+- `MIDDLELAYER_API` in `prod.env.js` is set to `'""'`
+- `MIDDLELAYER_API_PATH` in `prod.env.js` is set to `'"/api"'` (assuming that middle layer API base URL in `nginx` configuration is `/api`)
+- `MIDDLELAYER_API_SOCKET_PATH` in `prod.env.js` is set to `'"/api/socket.io/"'` (assuming that middle layer API base URL in `nginx` configuration is `/api`)
+- `MIDDLELAYER_MEDIA_PATH` in `prod.env.js` is set to `'"/api/media"'` (assuming that the api base URL in `nginx` configuration is `/api`)
