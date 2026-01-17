@@ -152,7 +152,7 @@
     ]
   },
   "features": {
-    "barista": { "enabled": false, "url": "http://impresso-barista:8000/chat" }
+    "barista": { "enabled": false, "url": "http://impresso-barista:8000/chat/stream" }
   },
   "callbackUrls": {
     "passwordReset": "https://impresso-project.ch/app/password-reset"
