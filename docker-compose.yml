@@ -159,9 +159,12 @@ services:
     environment:
       IML_URL: http://impresso-middle-layer:3030
       IML_PATH: socket.io
+      REDIS_URL: redis://redis:6379/0
     env_file:
       - "./.env"
       - "./.env.nosecret"
+    depends_on:
+      - redis
     logging:
       driver: "fluentd"
       options:
