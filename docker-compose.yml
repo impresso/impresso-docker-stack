@@ -156,10 +156,13 @@ services:
       - barista
     expose:
       - "8000"
+    volumes:
+      - barista-data:/app/data
     environment:
       IML_URL: http://impresso-middle-layer:3030
       IML_PATH: socket.io
       REDIS_URL: redis://redis:6379/0
+      QDRANT_DB_PATH: /app/data/qdrant_db
     env_file:
       - "./.env"
       - "./.env.nosecret"
@@ -277,3 +280,4 @@ volumes:
   middle-layer-cache:
   impresso-github-io-v1-files:
   datalab-app-files:
+  barista-data:
