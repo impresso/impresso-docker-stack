@@ -91,13 +91,27 @@
             "password": "${SOLR_WRITER_PASSWORD}"
           }
         }
+      },
+      {
+        "id": "solrcloud_test",
+        "baseUrl": "https://solrcloud-test-dhlab.epfl.ch/solr",
+        "auth": {
+          "read": {
+            "username": "${SOLR_READER_USERNAME}",
+            "password": "${SOLR_READER_PASSWORD}"
+          },
+          "write": {
+            "username": "${SOLR_WRITER_USERNAME}",
+            "password": "${SOLR_WRITER_PASSWORD}"
+          }
+        }
       }
     ],
     "namespaces": [
       {
         "namespaceId": "search",
-        "serverId": "default",
-        "index": "01_impresso_main"
+        "serverId": "solrcloud_test",
+        "index": "01_impresso_main_test"
       },
       {
         "namespaceId": "mentions",
