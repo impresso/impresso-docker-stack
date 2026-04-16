@@ -151,7 +151,7 @@
       },
       {
         "namespaceId": "collection_items",
-        "serverId": "default",
+        "serverId": "solrcloud_test",
         "index": "11_impresso_user_collections"
       },
       {
