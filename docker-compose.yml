@@ -84,32 +84,11 @@ services:
         fluentd-address: localhost:24224
         fluentd-async: "true"
         tag: impresso.middle-layer-public
-  impresso-user-admin:
+    # ------------------------------------------------------------------------
+  # Base configuration for all Django/Celery services
+  # ------------------------------------------------------------------------
+  impresso-user-admin-base: &impresso-user-admin-base
     image: impresso/impresso-user-admin:${IMPRESSO_USER_ADMIN_TAG:-latest}
-    restart: always
-    container_name: impresso-user-admin
-    env_file:
-      - "./.env"
-      - "./.env.nosecret"
-    environment:
-      ENV: docker
-    depends_on:
-      - redis
-    volumes:
-      - ./config/impresso-user-admin.env:/impresso-user-admin/.docker.env
-      - ./data/impresso-user-admin/logs:/impresso-user-admin/logs:z
-    command: python ./manage.py runserver 0.0.0.0:8000
-    # ports:
-    # - 8088:8000
-    logging:
-      driver: "fluentd"
-      options:
-        fluentd-address: localhost:24224
-        fluentd-async: "true"
-        tag: impresso.user-admin
-  impresso-celery:
-    image: impresso/impresso-user-admin:${IMPRESSO_USER_ADMIN_TAG:-latest}
-    container_name: impresso-celery
     restart: always
     env_file:
       - "./.env"
@@ -122,13 +101,46 @@ services:
       - ./config/impresso-user-admin.env:/impresso-user-admin/.docker.env
       - impresso-user-media:/impresso-user-admin/media:z
       - ./data/impresso-user-admin/logs:/impresso-user-admin/logs:z
-    command: celery -A impresso worker -l info
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async: "true"
+        tag: impresso.user-admin
+
+  impresso-user-admin:
+    <<: *impresso-user-admin-base
+    container_name: impresso-user-admin
+    command: >
+      gunicorn impresso.wsgi:application
+      --bind 0.0.0.0:8000
+      --workers 4
+      --threads 2
+      --timeout 120
+    # ports:
+    # - 8088:8000
+
+  impresso-celery:
+    <<: *impresso-user-admin-base
+    container_name: impresso-celery
+    command: celery -A impresso worker -l info --concurrency=4
     logging:
       driver: "fluentd"
       options:
         fluentd-address: localhost:24224
         fluentd-async: "true"
         tag: impresso.celery
+
+  impresso-celery-beat:
+    <<: *impresso-user-admin-base
+    container_name: impresso-celery-beat
+    command: celery -A impresso beat -l info
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async: "true"
+        tag: impresso.celery.beat
   impresso-recsys:
     image: impresso/impresso-recsys:${IMPRESSO_RECSYS_TAG:-latest}
     container_name: impresso-recsys
