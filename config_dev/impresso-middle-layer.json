@@ -110,8 +110,8 @@
     "namespaces": [
       {
         "namespaceId": "search",
-        "serverId": "solrcloud_test",
-        "index": "01_impresso_main_test"
+        "serverId": "default",
+        "index": "01_impresso_main"
       },
       {
         "namespaceId": "mentions",
@@ -151,8 +151,8 @@
       },
       {
         "namespaceId": "collection_items",
-        "serverId": "solrcloud_test",
-        "index": "11_impresso_user_collections"
+        "serverId": "default",
+        "index": "11_impresso_user_collections_colocated"
       },
       {
         "namespaceId": "subdoc_embeddings_experiment",
@@ -170,7 +170,8 @@
     "barista": {
       "enabled": true,
       "url": "http://impresso-barista:8000/chat/stream"
-    }
+    },
+    "collectionsIndexVersion": "new"
   },
   "callbackUrls": {
     "passwordReset": "https://dev.impresso-project.ch/app/password-reset",
