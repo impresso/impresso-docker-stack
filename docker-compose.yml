@@ -1,6 +1,8 @@
 services:
   redis:
     image: redis:alpine
+    platform: linux/amd64
+    container_name: redis
     restart: always
     volumes:
       - redis-data:/data
@@ -21,6 +23,7 @@ services:
         tag: impresso.redis
   impresso-socks-proxy:
     image: kroniak/ssh-client
+    platform: linux/amd64
     container_name: impresso-socks-proxy
     restart: always
     profiles:
@@ -32,6 +35,7 @@ services:
     command: ssh -N socks-proxy
   impresso-middle-layer:
     image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG:-latest}
+    platform: linux/amd64
     restart: always
     container_name: impresso-middle-layer
     env_file:
@@ -58,6 +62,7 @@ services:
         tag: impresso.middle-layer
   impresso-middle-layer-public:
     image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG:-latest}
+    platform: linux/amd64
     container_name: impresso-middle-layer-public
     restart: always
     depends_on:
@@ -86,6 +91,7 @@ services:
         tag: impresso.middle-layer-public
   impresso-user-admin:
     image: impresso/impresso-user-admin:${IMPRESSO_USER_ADMIN_TAG:-latest}
+    platform: linux/amd64
     restart: always
     container_name: impresso-user-admin
     env_file:
@@ -109,6 +115,7 @@ services:
         tag: impresso.user-admin
   impresso-celery:
     image: impresso/impresso-user-admin:${IMPRESSO_USER_ADMIN_TAG:-latest}
+    platform: linux/amd64
     container_name: impresso-celery
     restart: always
     env_file:
@@ -131,6 +138,7 @@ services:
         tag: impresso.celery
   impresso-recsys:
     image: impresso/impresso-recsys:${IMPRESSO_RECSYS_TAG:-latest}
+    platform: linux/amd64
     container_name: impresso-recsys
     restart: always
     env_file:
@@ -150,6 +158,7 @@ services:
         tag: impresso.recsys
   impresso-barista:
     image: impresso/impresso-barista:${IMPRESSO_BARISTA_TAG:-latest}
+    platform: linux/amd64
     container_name: impresso-barista
     restart: always
     profiles:
@@ -161,7 +170,7 @@ services:
     environment:
       IML_URL: http://impresso-middle-layer:3030
       IML_PATH: socket.io
-      REDIS_URL: redis://redis:6379/0
+      MYSQL_URL: mysql://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOSTNAME}/${DB_DATABASE}
       QDRANT_DB_PATH: /app/data/qdrant_db
     env_file:
       - "./.env"
@@ -176,6 +185,7 @@ services:
         tag: impresso.barista
   auth-service:
     image: impresso/impresso-content-auth:${IMPRESSO_AUTH_SERVICE_TAG:-latest}
+    platform: linux/amd64
     container_name: impresso-auth-service
     command: ["python", "-m", "impresso_content_auth.main", "--server"]
     env_file:
@@ -194,6 +204,7 @@ services:
       - "8087:8087"
   impresso-frontend:
     image: impresso/impresso-frontend:${IMPRESSO_FRONTEND_TAG}
+    platform: linux/amd64
     container_name: impresso-frontend
     volumes:
       - frontend-app-files:/impresso-frontend-files
@@ -210,6 +221,7 @@ services:
                   ls -lat /impresso-frontend-files/"
   impresso-datalab:
     image: impresso/impresso-datalab:${IMPRESSO_DATALAB_TAG:-latest}
+    platform: linux/amd64
     container_name: impresso-datalab
     volumes:
       - datalab-app-files:/impresso-datalab-files
@@ -222,12 +234,14 @@ services:
                   ls -lat /impresso-datalab-files/"
   impresso-github-io-v1:
     image: impresso/impresso.github.io:v1.0.0
+    platform: linux/amd64
     volumes:
       - impresso-github-io-v1-files:/impresso.github.io-v1.0.0:z
     command: >
       /bin/sh -c "echo 'Files in /impresso.github.io-v1.0.0/:' && ls -lat /impresso.github.io-v1.0.0/"
   nginx:
     image: openresty/openresty:alpine
+    platform: linux/amd64
     container_name: impresso-nginx
     restart: always
     ports:
@@ -260,6 +274,7 @@ services:
       - "com.centurylinklabs.watchtower.depends-on=impresso-recsys,impresso-user-admin,impresso-middle-layer-public,impresso-middle-layer"
   fluentd:
     container_name: impresso-fluentd
+    platform: linux/amd64
     restart: always
     build: ./docker/fluentd
     volumes:
