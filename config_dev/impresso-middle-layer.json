@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/impresso/impresso-middle-layer/refs/heads/develop/src/schema/common/config.json",
+  "$schema": "https://raw.githubusercontent.com/impresso/impresso-middle-layer/refs/heads/develop/src/schema/app/configuration/config.json",
   "host": "0.0.0.0",
   "redis": {
     "host": "redis"
@@ -8,6 +8,18 @@
     "enable": true,
     "brokerUrl": "redis://redis/4",
     "backendUrl": "redis://redis/5"
+  },
+  "rateLimiter": {
+    "enabled": false,
+    "capacity": 10,
+    "refillRate": 10,
+    "resources": {
+      "barista-proxy": {
+        "enabled": true,
+        "capacity": 60,
+        "refillRate": 0.016666666666666666
+      }
+    }
   },
   "authentication": {
     "secret": "${AUTH_SECRET_IML}",
