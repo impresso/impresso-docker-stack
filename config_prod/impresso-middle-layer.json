@@ -2,12 +2,12 @@
   "$schema": "https://raw.githubusercontent.com/impresso/impresso-middle-layer/refs/heads/develop/src/schema/common/config.json",
   "host": "0.0.0.0",
   "redis": {
-    "host": "redis"
+    "host": "dragonfly"
   },
   "celery": {
     "enable": true,
-    "brokerUrl": "redis://redis/4",
-    "backendUrl": "redis://redis/5"
+    "brokerUrl": "redis://dragonfly/4",
+    "backendUrl": "redis://dragonfly/5"
   },
   "authentication": {
     "secret": "${AUTH_SECRET_IML}",

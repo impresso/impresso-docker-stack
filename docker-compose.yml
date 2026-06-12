@@ -1,13 +1,17 @@
 services:
-  redis:
-    image: redis:alpine
+  dragonfly:
+    image: docker.dragonflydb.io/dragonflydb/dragonfly:latest
     platform: linux/amd64
-    container_name: redis
+    container_name: dragonfly
     restart: always
+    entrypoint: ["sh", "/scripts/dragonfly-entrypoint.sh"]
+    security_opt:
+      - seccomp=unconfined
+    ulimits:
+      memlock: -1
     volumes:
-      - redis-data:/data
-    # Disabling AOF for performance reasons as we don't need durability for caching
-    # entrypoint: redis-server --appendonly yes
+      - dragonfly-data:/data
+      - ./scripts/dragonfly-entrypoint.sh:/scripts/dragonfly-entrypoint.sh:ro
     ports:
       - "6379:6379"
     healthcheck:
@@ -20,7 +24,7 @@ services:
       options:
         fluentd-address: localhost:24224
         fluentd-async: "true"
-        tag: impresso.redis
+        tag: impresso.dragonfly
   impresso-socks-proxy:
     image: kroniak/ssh-client
     platform: linux/amd64
@@ -46,7 +50,7 @@ services:
       # Uncomment if you want to debug the API
       # DEBUG: 'impresso*'
     depends_on:
-      - redis
+      - dragonfly
       - impresso-celery
     # ports:
     #   - 3030:3030
@@ -66,7 +70,7 @@ services:
     container_name: impresso-middle-layer-public
     restart: always
     depends_on:
-      - redis
+      - dragonfly
       - impresso-middle-layer
     volumes:
       - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
@@ -100,7 +104,7 @@ services:
     environment:
       ENV: docker
     depends_on:
-      - redis
+      - dragonfly
     volumes:
       - ./config/impresso-user-admin.env:/impresso-user-admin/.docker.env
       - ./data/impresso-user-admin/logs:/impresso-user-admin/logs:z
@@ -124,7 +128,7 @@ services:
     environment:
       ENV: docker
     depends_on:
-      - redis
+      - dragonfly
     volumes:
       - ./config/impresso-user-admin.env:/impresso-user-admin/.docker.env
       - impresso-user-media:/impresso-user-admin/media:z
@@ -176,7 +180,7 @@ services:
       - "./.env"
       - "./.env.nosecret"
     depends_on:
-      - redis
+      - dragonfly
     logging:
       driver: "fluentd"
       options:
@@ -199,7 +203,9 @@ services:
       SOLR_PASSWORD: ${SOLR_READER_PASSWORD}
       SOLR_CONTENT_ITEM_COLLECTION: ${SOLR_CONTENT_ITEM_INDEX}
       LOG_LEVEL: ${AUTH_SERVICE_LOG_LEVEL:-INFO}
-      REDIS_URL: redis://redis:6379/0
+      REDIS_URL: redis://dragonfly:6379/0
+    depends_on:
+      - dragonfly
     ports:
       - "8087:8087"
   impresso-frontend:
@@ -296,3 +302,4 @@ volumes:
   impresso-github-io-v1-files:
   datalab-app-files:
   barista-data:
+  dragonfly-data:
