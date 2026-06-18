@@ -22,25 +22,11 @@ fi
 if [ -n "$MAXMEMORY" ]; then
     MAXMEMORY_ARG="$MAXMEMORY"
 else
-    CGROUP_LIMIT=""
-    # cgroup v2
-    if [ -f /sys/fs/cgroup/memory.max ]; then
-        CGROUP_LIMIT=$(cat /sys/fs/cgroup/memory.max)
-    # cgroup v1
-    elif [ -f /sys/fs/cgroup/memory/memory.limit_in_bytes ]; then
-        CGROUP_LIMIT=$(cat /sys/fs/cgroup/memory/memory.limit_in_bytes)
-    fi
+    TOTAL_MEM_MB=$(awk '/MemTotal/ { printf "%d\n", ($2 + 512) / 1024 }' /proc/meminfo)
 
-    # A cgroup limit of "max" or a very large number (>1PB) means no container limit
-    if [ -n "$CGROUP_LIMIT" ] && [ "$CGROUP_LIMIT" != "max" ] && [ "$CGROUP_LIMIT" -lt 1125899906842624 ] 2>/dev/null; then
-        TOTAL_MEM_BYTES=$CGROUP_LIMIT
-    else
-        TOTAL_MEM_BYTES=$(awk '/MemTotal/ { printf "%d\n", $2 * 1024 }' /proc/meminfo)
-    fi
-
-    MAXMEMORY_MB=$(( (TOTAL_MEM_BYTES / 2 + 524288) / 1048576 ))
+    MAXMEMORY_MB=$(( (TOTAL_MEM_MB + 1) / 2 ))
     MAXMEMORY_ARG="${MAXMEMORY_MB}mb"
-    echo "Total memory: $(( TOTAL_MEM_BYTES / 1048576 ))mb, allocating ${MAXMEMORY_MB}mb to dragonfly"
+    echo "Total memory: ${TOTAL_MEM_MB}mb, allocating ${MAXMEMORY_MB}mb to dragonfly"
 fi
 
 exec dragonfly --logtostderr --maxmemory="$MAXMEMORY_ARG" --proactor_threads=4 --dir=/data --dbfilename=dump --snapshot_cron="0 * * * *" --default_lua_flags=allow-undeclared-keys $TIERING_ARGS
