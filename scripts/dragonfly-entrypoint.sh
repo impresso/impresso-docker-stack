@@ -29,4 +29,4 @@ else
     echo "Total memory: ${TOTAL_MEM_MB}mb, allocating ${MAXMEMORY_MB}mb to dragonfly"
 fi
 
-exec dragonfly --logtostderr --maxmemory="$MAXMEMORY_ARG" --proactor_threads=4 --dir=/data --dbfilename=dump --snapshot_cron="0 * * * *" --default_lua_flags=allow-undeclared-keys $TIERING_ARGS
+exec dragonfly --logtostderr=false --maxmemory="$MAXMEMORY_ARG" --proactor_threads=4 --dir=/data --dbfilename=dump --snapshot_cron="0 * * * *" --default_lua_flags=allow-undeclared-keys $TIERING_ARGS
