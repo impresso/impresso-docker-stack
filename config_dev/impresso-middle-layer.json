@@ -123,7 +123,7 @@
       {
         "namespaceId": "search",
         "serverId": "default",
-        "index": "01_impresso_main"
+        "index": "01_impresso_main_test"
       },
       {
         "namespaceId": "mentions",
@@ -164,7 +164,7 @@
       {
         "namespaceId": "collection_items",
         "serverId": "default",
-        "index": "11_impresso_user_collections_colocated"
+        "index": "11_impresso_user_collections_colocated_test"
       },
       {
         "namespaceId": "subdoc_embeddings_experiment",
