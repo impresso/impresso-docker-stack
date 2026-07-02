@@ -3,7 +3,11 @@ set -e
 
 TIERING_ARGS=""
 
-if [ "$(cat /proc/sys/kernel/io_uring_disabled 2>/dev/null)" = "0" ]; then
+# Detect if the host is a Mac by checking for the internal Mac host mapping
+if grep -qi "apple" /proc/cpuinfo 2>/dev/null || grep -qi "apple" /sys/devices/virtual/dmi/id/product_name 2>/dev/null; then
+    echo "Running on macOS — io_uring not available — running without tiered storage"
+# If not a Mac, proceed with the Linux kernel parameter check
+elif [ "$(cat /proc/sys/kernel/io_uring_disabled 2>/dev/null)" = "0" ]; then
     echo "io_uring available — enabling tiered storage"
     TIERING_ARGS="--tiered_prefix=/data/tiered"
 else

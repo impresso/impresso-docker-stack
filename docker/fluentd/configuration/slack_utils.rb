@@ -2,65 +2,74 @@ require 'net/http'
 require 'uri'
 require 'json'
 
-def send_to_slack(messages, webhook_url)
-  payload = {
-    'message' => messages.join("\n")
-  }
+MAX_FIELD_CHARS = 2900
+DEBUG_LOG_PATH = '/tmp/slack_debug.log'
 
+def debug_log(msg)
+  File.open(DEBUG_LOG_PATH, 'a') { |f| f.puts("[#{Time.now}] #{msg}") }
+rescue StandardError
+  nil
+end
+
+def strip_control_chars(str)
+  str.to_s
+     .gsub(/\e\[[0-9;]*[a-zA-Z]/, '')
+     .gsub(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/, '')
+     .scrub('')
+end
+
+def truncate(str, limit)
+  str.length > limit ? str[0, limit] + "\n... (truncated)" : str
+end
+
+def send_to_slack(fields, webhook_url)
   uri = URI(webhook_url)
-
-  # raise "Invalid URI: #{uri} #{payload.to_json}"
-
   http = Net::HTTP.new(uri.host, uri.port)
   http.use_ssl = true
   request = Net::HTTP::Post.new(uri.path, { 'Content-Type' => 'application/json' })
-  request.body = payload.to_json
+  request.body = fields.to_json
   response = http.request(request)
 
-  # raise "Response from server: #{response.body}"
+  debug_log("REQUEST: #{fields.to_json}")
+  debug_log("RESPONSE: #{response.code} #{response.body}")
+
+  puts "Slack webhook error: #{response.code} #{response.body}" unless response.is_a?(Net::HTTPSuccess)
 end
 
-def entry_to_message_string(entry)
-  return "[#{entry['tag_key']}] #{entry['log']}"
+def entry_to_fields(entry)
+  tag         = strip_control_chars(entry['tag'] || entry['tag_key'] || 'unknown')
+  message     = strip_control_chars(entry['message_key'] || entry['log'] || '')
+  category    = strip_control_chars(entry['category_key'] || 'general')
+  stack_trace = strip_control_chars(entry['stack_trace'] || 'N/A')
+
+  {
+    'tag'         => truncate(tag, MAX_FIELD_CHARS),
+    'message'     => truncate(message, MAX_FIELD_CHARS),
+    'category'    => truncate(category, MAX_FIELD_CHARS),
+    'stack_trace' => truncate(stack_trace, MAX_FIELD_CHARS)
+  }
 end
 
 def process_slack_messages(file_path, webhook_url)
-  if File.exist?(file_path)
-    file_content = File.read(file_path)
+  unless File.exist?(file_path)
+    debug_log("File not found: #{file_path}")
+    return
+  end
 
-    messages = []
+  excluded_patterns = [
+    /Warning: got packets out of order/i,
+  ]
 
-    File.readlines(file_path).map do |line|
-      begin
-        message = JSON.parse(line)
-        
-        request = entry_to_message_string(message)
+  File.readlines(file_path).each do |line|
+    begin
+      entry = JSON.parse(line)
+      fields = entry_to_fields(entry)
 
-        excluded_patterns = [
-          /Warning: got packets out of order/i,
-        ]
-        
-        # Skip messages that match any of the excluded patterns
-        should_exclude = excluded_patterns.any? { |pattern| request =~ pattern }
-        messages << request unless should_exclude
+      next if excluded_patterns.any? { |pattern| fields['message'] =~ pattern }
 
-        # File.open('/tmp/matomo.log', 'a') do |file|
-        #   file.puts(JSON.pretty_generate(entry))
-        # end
-      rescue JSON::ParserError => e
-        puts "Failed to parse line: #{line}. Error: #{e.message}"
-        nil
-      end
-    end.compact
-
-    if messages.any?
-      # split into chunks of 3 messages to avoid Slack API limits of 40000 characters
-      messages.each_slice(3) do |chunk|
-        send_to_slack(chunk, webhook_url)
-      end
+      send_to_slack(fields, webhook_url)
+    rescue JSON::ParserError => e
+      debug_log("Failed to parse line: #{line}. Error: #{e.message}")
     end
-
-  else
-    puts "File not found: #{file_path}"
   end
 end
