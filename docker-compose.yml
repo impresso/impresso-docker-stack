@@ -176,6 +176,7 @@ services:
       IML_PATH: socket.io
       MYSQL_URL: mysql://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOSTNAME}/${DB_DATABASE}
       QDRANT_DB_PATH: /app/data/qdrant_db
+      ENVIRONMENT: production
     env_file:
       - "./.env"
       - "./.env.nosecret"
