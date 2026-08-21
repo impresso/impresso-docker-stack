@@ -1,5 +1,15 @@
 {
   "$schema": "https://raw.githubusercontent.com/impresso/impresso-middle-layer/refs/heads/develop/src/schema/app/configuration/config.json",
+  "magicLink": {
+    "expiration": 100,
+    "secret": "${AUTH_SECRET_IML}"
+  },
+  "embeddings": {
+    "textEmbeddings": {
+      "tag": "gte-256",
+      "solrField": "gte_multi_v256"
+    }
+  },
   "host": "0.0.0.0",
   "redis": {
     "host": "dragonfly"
