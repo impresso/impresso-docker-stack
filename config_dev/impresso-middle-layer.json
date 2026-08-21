@@ -10,6 +10,11 @@
       "solrField": "gte_multi_v256"
     }
   },
+  "auditLogging": {
+    "enabled": true,
+    "host": "vector-audit-log",
+    "port": 8080
+  },
   "host": "0.0.0.0",
   "redis": {
     "host": "dragonfly"

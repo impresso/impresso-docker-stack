@@ -1,0 +1,46 @@
+[sources.audit_events_in]
+type = "http_server"
+address = "0.0.0.0:8080"
+encoding = "json"
+
+# (Optional) Add a transform step to enforce schema or parse timestamps
+
+[sinks.audit_events_out]
+type = "aws_s3"
+inputs = ["audit_events_in"]
+bucket = "00-impresso-user-data-audit-logs"
+region = "ZH"
+endpoint = "https://os.zhdk.cloud.switch.ch"
+# MinIO buckets are path-style (bucket in the path, not the host)
+force_path_style = true
+# Partition into one prefix per provider_id, one object per day
+key_prefix = "audit-logs/${VECTOR_ENV_TAG}/{{ provider_id }}/%Y-%m-%d/"
+filename_extension = "parquet"
+# Parquet handles its own columnar compression, so the object-level
+# compression setting must stay "none" when batch_encoding is used.
+compression = "none"
+encoding.codec = "text"
+
+auth.access_key_id = "${SWITCH_ACCESS_KEY_ID}"
+auth.secret_access_key = "${SWITCH_SECRET_ACCESS_KEY}"
+
+# Buffers each batch and writes it out as a single Parquet file
+# instead of the default per-event json/text encoding.
+[sinks.audit_events_out.batch_encoding]
+codec = "parquet"
+schema_file = "/etc/vector/schemas/audit_event.schema"
+schema_mode = "relaxed"
+
+[sinks.audit_events_out.batch_encoding.compression]
+algorithm = "zstd"
+level = 9
+
+# --- 1-Hour Batching Settings ---
+[sinks.audit_events_out.batch]
+timeout_secs = 3600               # Flush every 1 hour (3600 seconds)
+max_bytes = 268435456             # 256MB memory threshold
+max_events = 1000000              # Event count threshold
+
+[sinks.audit_events_out.buffer]
+type = "disk"
+max_size = 524288000 # 500 MB

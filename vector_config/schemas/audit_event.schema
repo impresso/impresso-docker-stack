@@ -1,0 +1,7 @@
+message audit_event {
+  required binary provider_id (UTF8);
+  required binary impresso_user_id (UTF8);
+  required binary content_item_id (UTF8);
+  required int64 timestamp (TIMESTAMP_MILLIS);
+  required binary access_method (UTF8);
+}
