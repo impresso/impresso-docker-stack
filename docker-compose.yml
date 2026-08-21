@@ -25,6 +25,25 @@ services:
         fluentd-address: localhost:24224
         fluentd-async: "true"
         tag: impresso.dragonfly
+  vector:
+    image: timberio/vector:latest-alpine
+    platform: linux/amd64
+    container_name: vector-audit-log
+    restart: unless-stopped
+    command: ["--config", "/etc/vector/vector.toml"]
+    volumes:
+      - ./vector_config/vector.toml:/etc/vector/vector.toml:ro
+      - ./vector_config/schemas:/etc/vector/schemas:ro
+      - vector_data:/var/lib/vector
+    ports:
+      - "8686:8686"
+      - "8080:8080"
+    env_file:
+      - "./.env"
+      - "./.env.nosecret"
+    environment:
+      - VECTOR_DANGEROUSLY_ALLOW_ENV_VAR_INTERPOLATION=true
+
   impresso-socks-proxy:
     image: kroniak/ssh-client
     platform: linux/amd64
@@ -49,6 +68,8 @@ services:
       NODE_ENV: docker
       # Uncomment if you want to debug the API
       # DEBUG: 'impresso*'
+    links:
+      - dragonfly:dragonfly
     depends_on:
       - dragonfly
       - impresso-celery
@@ -72,6 +93,8 @@ services:
     depends_on:
       - dragonfly
       - impresso-middle-layer
+    links:
+      - dragonfly:dragonfly
     volumes:
       - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
       - ./config/impresso-middle-layer-public.json:/impresso-middle-layer/config/api-docker.json
@@ -304,3 +327,8 @@ volumes:
   datalab-app-files:
   barista-data:
   dragonfly-data:
+  vector_data:
+networks:
+  default:
+    driver: bridge
+    name: impresso_shared_net
