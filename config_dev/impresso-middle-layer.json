@@ -13,7 +13,15 @@
   "auditLogging": {
     "enabled": true,
     "host": "vector-audit-log",
-    "port": 8080
+    "port": 8080,
+    "storage": {
+      "endpoint": "https://os.zhdk.cloud.switch.ch",
+      "bucket": "00-impresso-user-data-audit-logs",
+      "region": "ZH",
+      "accessKeyId": "${SWITCH_ACCESS_KEY_ID}",
+      "secretAccessKey": "${SWITCH_SECRET_ACCESS_KEY}",
+      "keyPrefix": "audit-logs/dev"
+    }
   },
   "host": "0.0.0.0",
   "redis": {
