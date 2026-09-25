@@ -3,11 +3,25 @@ type = "http_server"
 address = "0.0.0.0:8080"
 encoding = "json"
 
-# (Optional) Add a transform step to enforce schema or parse timestamps
+# The app POSTs a JSON array of records in a single request, which Vector
+# decodes as ONE event whose root is an array. Split it into one event per
+# element, and convert the epoch-millis timestamp so the %Y-%m-%d in
+# key_prefix uses event time instead of ingest time.
+[transforms.audit_split]
+type = "remap"
+inputs = ["audit_events_in"]
+source = '''
+if is_array(.) {
+  . = unnest(.)
+}
+if is_integer(.timestamp) {
+  .timestamp = from_unix_timestamp(.timestamp, unit: "milliseconds")
+}
+'''
 
 [sinks.audit_events_out]
 type = "aws_s3"
-inputs = ["audit_events_in"]
+inputs = ["audit_split"]
 bucket = "00-impresso-user-data-audit-logs"
 region = "ZH"
 endpoint = "https://os.zhdk.cloud.switch.ch"
