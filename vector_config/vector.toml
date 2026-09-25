@@ -1,17 +1,32 @@
 [sources.audit_events_in]
 type = "http_server"
 address = "0.0.0.0:8080"
-encoding = "json"
 
-# The app POSTs a JSON array of records in a single request, which Vector
-# decodes as ONE event whose root is an array. Split it into one event per
-# element, and convert the epoch-millis timestamp so the %Y-%m-%d in
-# key_prefix uses event time instead of ingest time.
+[sources.audit_events_in.decoding]
+codec = "json"
+
+# The app POSTs a JSON array of records in a single request. The http_server
+# source delivers that body as raw JSON text in `.message` (not as an array
+# event), so parse it and unnest it into one event per record. Handles the
+# other possible shapes (root-array / message-array) defensively. Also
+# converts the epoch-millis timestamp so %Y-%m-%d in key_prefix uses event
+# time instead of ingest time.
 [transforms.audit_split]
 type = "remap"
 inputs = ["audit_events_in"]
 source = '''
-if is_array(.) {
+if is_string(.message) {
+  raw = string!(.message)
+  if starts_with(raw, "[") {
+    . = array!(parse_json!(raw))
+    . = unnest(.)
+  } else if starts_with(raw, "{") {
+    . = parse_json!(raw)
+  }
+} else if is_array(.message) {
+  . = array!(.message)
+  . = unnest(.)
+} else if is_array(.) {
   . = array!(.)
   . = unnest(.)
 }
