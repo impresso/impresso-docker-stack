@@ -12,10 +12,10 @@ type = "remap"
 inputs = ["audit_events_in"]
 source = '''
 if is_array(.) {
-  . = unnest(.)
+  . = unnest(array!(.))
 }
 if is_integer(.timestamp) {
-  .timestamp = from_unix_timestamp(.timestamp, unit: "milliseconds")
+  .timestamp = from_unix_timestamp!(.timestamp, "milliseconds")
 }
 '''
 
