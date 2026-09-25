@@ -18,6 +18,9 @@ if is_array(.) {
 if is_integer(.timestamp) {
   .timestamp = from_unix_timestamp!(.timestamp, "milliseconds")
 }
+if !exists(.provider_id) {
+  log("audit event missing provider_id: " + encode_json(.), level: "warn")
+}
 '''
 
 [sinks.audit_events_out]
