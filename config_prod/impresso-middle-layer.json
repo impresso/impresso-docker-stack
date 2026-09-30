@@ -172,6 +172,8 @@
     }
   },
   "callbackUrls": {
-    "passwordReset": "https://impresso-project.ch/app/password-reset"
+    "passwordReset": "https://impresso-project.ch/app/password-reset",
+    "magicLink": "https://impresso-project.ch/institutions-access/magic-link",
+    "emailVerification": "https://impresso-project.ch/app/email-verification"
   }
 }
