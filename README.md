@@ -23,13 +23,13 @@ ln -s .env.prod .env
 Production servers do not require a proxy.
 
 ```shell
-docker compose  --env-file ./.env.prod --env-file ./.env.nosecret-prod up
+docker compose --env-file ./.env.prod --env-file ./.env.nosecret-prod  -p impresso up
 ```
 
 or
 
 ```shell
-docker compose  --env-file ./.env.prod --env-file ./.env.nosecret-prod --profile barista up -d
+docker compose -p impresso --env-file ./.env.prod --env-file ./.env.nosecret-prod --profile barista  -p impresso up -d
 ```
 
 ## Running in dev (staging)

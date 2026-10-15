@@ -104,6 +104,20 @@
             "password": "${SOLR_WRITER_PASSWORD}"
           }
         }
+      },
+      {
+        "id": "RC",
+        "baseUrl": "${SOLR_RC_BASE_URL}",
+        "auth": {
+          "read": {
+            "username": "${SOLR_RC_READER_USERNAME}",
+            "password": "${SOLR_RC_READER_PASSWORD}"
+          },
+          "write": {
+            "username": "${SOLR_RC_WRITER_USERNAME}",
+            "password": "${SOLR_RC_WRITER_PASSWORD}"
+          }
+        }
       }
     ],
     "namespaces": [
@@ -114,13 +128,13 @@
       },
       {
         "namespaceId": "topics",
-        "serverId": "default",
+        "serverId": "RC",
         "index": "02_impresso_topics"
       },
       {
         "namespaceId": "images",
-        "serverId": "development",
-        "index": "03_impresso_images_test",
+        "serverId": "RC",
+        "index": "03_impresso_images_sandbox",
         "schemaVersion": "v2"
       },
       {
@@ -140,13 +154,13 @@
       },
       {
         "namespaceId": "mentions",
-        "serverId": "default",
-        "index": "08_impresso_mentions"
+        "serverId": "RC",
+        "index": "08_impresso_mentions_sandbox"
       },
       {
         "namespaceId": "entities",
-        "serverId": "default",
-        "index": "09_impresso_entities"
+        "serverId": "RC",
+        "index": "09_impresso_entities_sandbox"
       },
       {
         "namespaceId": "collection_items",
