@@ -1,13 +1,46 @@
 [sources.audit_events_in]
 type = "http_server"
 address = "0.0.0.0:8080"
-encoding = "json"
 
-# (Optional) Add a transform step to enforce schema or parse timestamps
+[sources.audit_events_in.decoding]
+codec = "json"
+
+# The app POSTs a JSON array of records in a single request. The http_server
+# source delivers that body as raw JSON text in `.message` (not as an array
+# event), so parse it and unnest it into one event per record. Handles the
+# other possible shapes (root-array / message-array) defensively. Also
+# converts the epoch-millis timestamp so %Y-%m-%d in key_prefix uses event
+# time instead of ingest time.
+[transforms.audit_split]
+type = "remap"
+inputs = ["audit_events_in"]
+source = '''
+if is_string(.message) {
+  raw = string!(.message)
+  if starts_with(raw, "[") {
+    . = array!(parse_json!(raw))
+    . = unnest(.)
+  } else if starts_with(raw, "{") {
+    . = parse_json!(raw)
+  }
+} else if is_array(.message) {
+  . = array!(.message)
+  . = unnest(.)
+} else if is_array(.) {
+  . = array!(.)
+  . = unnest(.)
+}
+if is_integer(.timestamp) {
+  .timestamp = from_unix_timestamp!(.timestamp, "milliseconds")
+}
+if !exists(.provider_id) {
+  log("audit event missing provider_id: " + encode_json(.), level: "warn")
+}
+'''
 
 [sinks.audit_events_out]
 type = "aws_s3"
-inputs = ["audit_events_in"]
+inputs = ["audit_split"]
 bucket = "00-impresso-user-data-audit-logs"
 region = "ZH"
 endpoint = "https://os.zhdk.cloud.switch.ch"

@@ -4,6 +4,8 @@ require 'json'
 
 MAX_FIELD_CHARS = 2900
 DEBUG_LOG_PATH = '/tmp/slack_debug.log'
+SLACK_HTTP_OPEN_TIMEOUT = 2
+SLACK_HTTP_READ_TIMEOUT = 5
 
 def debug_log(msg)
   File.open(DEBUG_LOG_PATH, 'a') { |f| f.puts("[#{Time.now}] #{msg}") }
@@ -26,12 +28,25 @@ def send_to_slack(fields, webhook_url)
   uri = URI(webhook_url)
   http = Net::HTTP.new(uri.host, uri.port)
   http.use_ssl = true
+  http.open_timeout = SLACK_HTTP_OPEN_TIMEOUT
+  http.read_timeout = SLACK_HTTP_READ_TIMEOUT
   request = Net::HTTP::Post.new(uri.path, { 'Content-Type' => 'application/json' })
   request.body = fields.to_json
-  response = http.request(request)
+
+  begin
+    response = http.request(request)
+  rescue StandardError => e
+    debug_log("HTTP request failed, dropping message: #{e.class} #{e.message}")
+    return
+  end
 
   debug_log("REQUEST: #{fields.to_json}")
   debug_log("RESPONSE: #{response.code} #{response.body}")
+
+  if response.code == '429'
+    debug_log("Slack API throttled (429), dropping message: #{fields['tag']}")
+    return
+  end
 
   puts "Slack webhook error: #{response.code} #{response.body}" unless response.is_a?(Net::HTTPSuccess)
 end

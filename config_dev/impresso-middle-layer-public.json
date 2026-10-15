@@ -7,6 +7,11 @@
     "capacity": 600,
     "refillRate": 1
   },
+  "provenance": {
+    "enabled": true,
+    "issuer": "impresso-dev",
+    "audience": "provenance"
+  },
   "authentication": {
     "secret": "${AUTH_SECRET_IML_PUBLIC}",
     "jwtOptions": {
