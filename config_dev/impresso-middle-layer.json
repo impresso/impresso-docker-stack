@@ -6,8 +6,8 @@
   },
   "embeddings": {
     "textEmbeddings": {
-      "tag": "gte-256",
-      "solrField": "gte_multi_v256"
+      "tag": "gte-768",
+      "solrField": "gte_multi_v768"
     }
   },
   "provenance": {
