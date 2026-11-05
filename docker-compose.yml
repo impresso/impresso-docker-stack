@@ -262,13 +262,6 @@ services:
                   cp -r /app/* /impresso-datalab-files/ &&
                   echo 'Files in /impresso-datalab-files/* :' &&
                   ls -lat /impresso-datalab-files/"
-  impresso-github-io-v1:
-    image: impresso/impresso.github.io:v1.0.0
-    platform: linux/amd64
-    volumes:
-      - impresso-github-io-v1-files:/impresso.github.io-v1.0.0:z
-    command: >
-      /bin/sh -c "echo 'Files in /impresso.github.io-v1.0.0/:' && ls -lat /impresso.github.io-v1.0.0/"
   nginx:
     image: openresty/openresty:alpine
     platform: linux/amd64
@@ -281,14 +274,12 @@ services:
       - impresso-user-admin
       - impresso-frontend
     volumes:
-      - ./config/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
+      - ./nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
       - ./scripts/body_filter.lua:/usr/local/openresty/nginx/scripts/body_filter.lua:ro
       - ./scripts/header_filter.lua:/usr/local/openresty/nginx/scripts/header_filter.lua:ro
       - frontend-app-files:/opt/impresso-frontend
       - datalab-app-files:/opt/impresso-datalab
       - impresso-user-media:/opt/impresso-user-media
-      - impresso-github-io-v1-files:/opt/impresso-github-io-v1
-      - iiif-widget-app-files:/opt/impresso-iiif-widget
       - ./scripts/nginx-healthcheck.sh:/tmp/healthcheck.sh
     # Uncomment the line below if nginx crashes because of incorrect configuration
     # This will make nginx print debug info
@@ -319,14 +310,16 @@ services:
       - "24224:24224/udp"
 volumes:
   frontend-app-files:
-  iiif-widget-app-files:
-  redis-data:
+  dragonfly-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: "${DATA_DIR:-${PWD}}/data/dragonfly_tiered_storage"
+      o: bind
   impresso-user-media:
   middle-layer-cache:
-  impresso-github-io-v1-files:
   datalab-app-files:
   barista-data:
-  dragonfly-data:
   vector_data:
 networks:
   default:

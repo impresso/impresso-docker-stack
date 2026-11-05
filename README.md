@@ -90,9 +90,13 @@ To use the suitable configuration, create a symlink to the desired configuration
 ln -s config_prod config
 ```
 
-### Proxy and extra nginx configuration
+### Nginx configuration
 
-Proxy (ssh tunnel) configuration should be placed in `proxy_config` directory. If nginx configuration needs extra files, they should be placed in `nginx_config` directory.
+`nginx/nginx.conf` is shared by all environments and mounted directly by
+docker compose (it is not part of the `config` directories). Its Lua filters
+live in `scripts/`.
+
+### Proxy and extra nginx configuration
 
 A special note about the database. Our setup assumes the database is accessed via an SSH tunnel to the database host. If the database port is accessible directly, you can simplify the configuration by setting the db hostname, port and credentials in the relevant config files, commenting out the `mysql-tunnel` section in `docker-compose.yml`. In this case you also do not need the files in the `config/ssh` folder, those are used for the DB tunnel only.
 
