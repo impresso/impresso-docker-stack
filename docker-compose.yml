@@ -274,7 +274,7 @@ services:
       - impresso-user-admin
       - impresso-frontend
     volumes:
-      - ./config/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
+      - ./nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
       - ./scripts/body_filter.lua:/usr/local/openresty/nginx/scripts/body_filter.lua:ro
       - ./scripts/header_filter.lua:/usr/local/openresty/nginx/scripts/header_filter.lua:ro
       - frontend-app-files:/opt/impresso-frontend

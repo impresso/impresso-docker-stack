@@ -13,9 +13,6 @@ config
 proxy_config/*
 !proxy_config/.gitkeep
 
-nginx_config/*
-!nginx_config/.gitkeep
-
 backup/*
 
 data/*
