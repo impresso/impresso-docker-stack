@@ -10,7 +10,7 @@ services:
     ulimits:
       memlock: -1
     volumes:
-      - dragonfly-data:/data
+      - ${DATA_DIR:-.}/data/dragonfly_tiered_storage:/data
       - ./scripts/dragonfly-entrypoint.sh:/scripts/dragonfly-entrypoint.sh:ro
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -343,12 +343,6 @@ services:
       SLACK_FEEDBACK_WEBHOOK_URL: ${SLACK_FEEDBACK_WEBHOOK_URL}
 volumes:
   frontend-app-files:
-  dragonfly-data:
-    driver: local
-    driver_opts:
-      type: none
-      device: "${DATA_DIR:-${PWD}}/data/dragonfly_tiered_storage"
-      o: bind
   impresso-user-media:
   middle-layer-cache:
   datalab-app-files:
