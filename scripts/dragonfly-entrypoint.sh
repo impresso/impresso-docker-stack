@@ -7,7 +7,8 @@ TIERING_ARGS=""
 if grep -qi "apple" /proc/cpuinfo 2>/dev/null || grep -qi "apple" /sys/devices/virtual/dmi/id/product_name 2>/dev/null; then
     echo "Running on macOS — io_uring not available — running without tiered storage"
 # If not a Mac, proceed with the Linux kernel parameter check
-elif [ "$(cat /proc/sys/kernel/io_uring_disabled 2>/dev/null)" = "0" ]; then
+# io_uring_disabled only exists on Linux 6.6+ (or backports); a missing file means no toggle, i.e. enabled.
+elif [ "$(cat /proc/sys/kernel/io_uring_disabled 2>/dev/null || echo 0)" = "0" ]; then
     echo "io_uring available — enabling tiered storage"
     TIERING_ARGS="--tiered_prefix=/data/tiered"
 else
@@ -15,11 +16,17 @@ else
 fi
 
 # Determine maxmemory: use MAXMEMORY env var, or default to half of available RAM.
-# Checks cgroup memory limit (container limit) first, then falls back to /proc/meminfo.
+# Checks cgroup v2 memory limit (container limit) first, then falls back to /proc/meminfo.
 if [ -n "$MAXMEMORY" ]; then
     MAXMEMORY_ARG="$MAXMEMORY"
 else
-    TOTAL_MEM_MB=$(awk '/MemTotal/ { printf "%d\n", ($2 + 512) / 1024 }' /proc/meminfo)
+    CGROUP_MEM_MAX=$(cat /sys/fs/cgroup/memory.max 2>/dev/null || true)
+    case "$CGROUP_MEM_MAX" in
+        ''|*[!0-9]*)  # "max" (no limit), missing or unexpected value
+            TOTAL_MEM_MB=$(awk '/MemTotal/ { printf "%d\n", ($2 + 512) / 1024 }' /proc/meminfo) ;;
+        *)
+            TOTAL_MEM_MB=$(( CGROUP_MEM_MAX / 1048576 )) ;;
+    esac
 
     MAXMEMORY_MB=$(( (TOTAL_MEM_MB + 1) / 2 ))
     MAXMEMORY_ARG="${MAXMEMORY_MB}mb"

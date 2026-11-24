@@ -2,7 +2,7 @@ services:
   dragonfly:
     image: docker.dragonflydb.io/dragonflydb/dragonfly:latest
     platform: linux/amd64
-    container_name: dragonfly
+    container_name: impresso-dragonfly
     restart: always
     entrypoint: ["sh", "/scripts/dragonfly-entrypoint.sh"]
     security_opt:
@@ -10,12 +10,11 @@ services:
     ulimits:
       memlock: -1
     volumes:
-      - dragonfly-data:/data
+      - ${DATA_DIR:-.}/data/dragonfly_tiered_storage:/data
       - ./scripts/dragonfly-entrypoint.sh:/scripts/dragonfly-entrypoint.sh:ro
-    ports:
-      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
+      start_period: 5s
       interval: 1s
       timeout: 3s
       retries: 30
@@ -30,37 +29,24 @@ services:
     platform: linux/amd64
     container_name: vector-audit-log
     restart: unless-stopped
+    init: true
     command: ["--config", "/etc/vector/vector.toml"]
     volumes:
       - ./vector_config/vector.toml:/etc/vector/vector.toml:ro
       - ./vector_config/schemas:/etc/vector/schemas:ro
       - vector_data:/var/lib/vector
-    ports:
-      - "8686:8686"
-      - "8080:8080"
     env_file:
       - "./.env"
       - "./.env.nosecret"
     environment:
       - VECTOR_DANGEROUSLY_ALLOW_ENV_VAR_INTERPOLATION=true
 
-  impresso-socks-proxy:
-    image: kroniak/ssh-client
-    platform: linux/amd64
-    container_name: impresso-socks-proxy
-    restart: always
-    profiles:
-      - with_proxy
-    volumes:
-      - ./proxy_config:/root/.ssh
-    ports:
-      - 1080:1080
-    command: ssh -N socks-proxy
   impresso-middle-layer:
     image: impresso/impresso-middle-layer:${IMPRESSO_MIDDLE_LAYER_TAG:-latest}
     platform: linux/amd64
     restart: always
     container_name: impresso-middle-layer
+    init: true
     env_file:
       - "./.env"
       - "./.env.nosecret"
@@ -68,11 +54,11 @@ services:
       NODE_ENV: docker
       # Uncomment if you want to debug the API
       # DEBUG: 'impresso*'
-    links:
-      - dragonfly:dragonfly
     depends_on:
-      - dragonfly
-      - impresso-celery
+      dragonfly:
+        condition: service_healthy
+      impresso-celery:
+        condition: service_started
     # ports:
     #   - 3030:3030
     volumes:
@@ -90,11 +76,12 @@ services:
     platform: linux/amd64
     container_name: impresso-middle-layer-public
     restart: always
+    init: true
     depends_on:
-      - dragonfly
-      - impresso-middle-layer
-    links:
-      - dragonfly:dragonfly
+      dragonfly:
+        condition: service_healthy
+      impresso-middle-layer:
+        condition: service_started
     volumes:
       - ./config/impresso-middle-layer.json:/impresso-middle-layer/config/docker.json
       - ./config/impresso-middle-layer-public.json:/impresso-middle-layer/config/api-docker.json
@@ -121,13 +108,15 @@ services:
     platform: linux/amd64
     restart: always
     container_name: impresso-user-admin
+    init: true
     env_file:
       - "./.env"
       - "./.env.nosecret"
     environment:
       ENV: docker
     depends_on:
-      - dragonfly
+      dragonfly:
+        condition: service_healthy
     volumes:
       - ./config/impresso-user-admin.env:/impresso-user-admin/.docker.env
       - ./data/impresso-user-admin/logs:/impresso-user-admin/logs:z
@@ -145,13 +134,15 @@ services:
     platform: linux/amd64
     container_name: impresso-celery
     restart: always
+    init: true
     env_file:
       - "./.env"
       - "./.env.nosecret"
     environment:
       ENV: docker
     depends_on:
-      - dragonfly
+      dragonfly:
+        condition: service_healthy
     volumes:
       - ./config/impresso-user-admin.env:/impresso-user-admin/.docker.env
       - impresso-user-media:/impresso-user-admin/media:z
@@ -163,31 +154,12 @@ services:
         fluentd-address: localhost:24224
         fluentd-async: "true"
         tag: impresso.celery
-  impresso-recsys:
-    image: impresso/impresso-recsys:${IMPRESSO_RECSYS_TAG:-latest}
-    platform: linux/amd64
-    container_name: impresso-recsys
-    restart: always
-    env_file:
-      - "./.env"
-      - "./.env.nosecret"
-    environment:
-      DJANGO_SETTINGS_MODULE: impresso_recsys.docker_settings
-    expose:
-      - "8000"
-    volumes:
-      - ./config/recsys_config.py:/app/impresso_recsys/docker_settings.py
-    logging:
-      driver: "fluentd"
-      options:
-        fluentd-address: localhost:24224
-        fluentd-async: "true"
-        tag: impresso.recsys
   impresso-barista:
     image: impresso/impresso-barista:${IMPRESSO_BARISTA_TAG:-latest}
     platform: linux/amd64
     container_name: impresso-barista
     restart: always
+    init: true
     profiles:
       - barista
     expose:
@@ -204,7 +176,8 @@ services:
       - "./.env"
       - "./.env.nosecret"
     depends_on:
-      - dragonfly
+      dragonfly:
+        condition: service_healthy
     logging:
       driver: "fluentd"
       options:
@@ -215,6 +188,7 @@ services:
     image: impresso/impresso-content-auth:${IMPRESSO_AUTH_SERVICE_TAG:-latest}
     platform: linux/amd64
     container_name: impresso-auth-service
+    init: true
     command: ["python", "-m", "impresso_content_auth.main", "--server"]
     env_file:
       - "./.env"
@@ -229,9 +203,8 @@ services:
       LOG_LEVEL: ${AUTH_SERVICE_LOG_LEVEL:-INFO}
       REDIS_URL: redis://dragonfly:6379/0
     depends_on:
-      - dragonfly
-    ports:
-      - "8087:8087"
+      dragonfly:
+        condition: service_healthy
   impresso-frontend:
     image: impresso/impresso-frontend:${IMPRESSO_FRONTEND_TAG}
     platform: linux/amd64
@@ -262,18 +235,12 @@ services:
                   cp -r /app/* /impresso-datalab-files/ &&
                   echo 'Files in /impresso-datalab-files/* :' &&
                   ls -lat /impresso-datalab-files/"
-  impresso-github-io-v1:
-    image: impresso/impresso.github.io:v1.0.0
-    platform: linux/amd64
-    volumes:
-      - impresso-github-io-v1-files:/impresso.github.io-v1.0.0:z
-    command: >
-      /bin/sh -c "echo 'Files in /impresso.github.io-v1.0.0/:' && ls -lat /impresso.github.io-v1.0.0/"
   nginx:
     image: openresty/openresty:alpine
     platform: linux/amd64
     container_name: impresso-nginx
     restart: always
+    init: true
     ports:
       - "${NGINX_PORT:-80}:80"
     depends_on:
@@ -281,14 +248,12 @@ services:
       - impresso-user-admin
       - impresso-frontend
     volumes:
-      - ./config/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
+      - ./nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
       - ./scripts/body_filter.lua:/usr/local/openresty/nginx/scripts/body_filter.lua:ro
       - ./scripts/header_filter.lua:/usr/local/openresty/nginx/scripts/header_filter.lua:ro
       - frontend-app-files:/opt/impresso-frontend
       - datalab-app-files:/opt/impresso-datalab
       - impresso-user-media:/opt/impresso-user-media
-      - impresso-github-io-v1-files:/opt/impresso-github-io-v1
-      - iiif-widget-app-files:/opt/impresso-iiif-widget
       - ./scripts/nginx-healthcheck.sh:/tmp/healthcheck.sh
     # Uncomment the line below if nginx crashes because of incorrect configuration
     # This will make nginx print debug info
@@ -301,11 +266,12 @@ services:
       timeout: 4s
       retries: 1
     labels:
-      - "com.centurylinklabs.watchtower.depends-on=impresso-recsys,impresso-user-admin,impresso-middle-layer-public,impresso-middle-layer"
+      - "com.centurylinklabs.watchtower.depends-on=impresso-user-admin,impresso-middle-layer-public,impresso-middle-layer"
   fluentd:
     container_name: impresso-fluentd
     platform: linux/amd64
     restart: always
+    init: true
     build: ./docker/fluentd
     volumes:
       - ./docker/fluentd/configuration:/fluentd/etc
@@ -314,21 +280,10 @@ services:
       MATOMO_ERROR_USER_ID: ${MATOMO_ERROR_USER_ID}
       SLACK_ERRORS_WEBHOOK_URL: ${SLACK_ERRORS_WEBHOOK_URL}
       SLACK_FEEDBACK_WEBHOOK_URL: ${SLACK_FEEDBACK_WEBHOOK_URL}
-    ports:
-      - "24224:24224"
-      - "24224:24224/udp"
 volumes:
   frontend-app-files:
-  iiif-widget-app-files:
-  redis-data:
   impresso-user-media:
   middle-layer-cache:
-  impresso-github-io-v1-files:
   datalab-app-files:
   barista-data:
-  dragonfly-data:
   vector_data:
-networks:
-  default:
-    driver: bridge
-    name: impresso_shared_net
