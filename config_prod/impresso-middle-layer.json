@@ -141,12 +141,12 @@
       {
         "namespaceId": "mentions",
         "serverId": "default",
-        "index": "08_impresso_mentions_sandbox"
+        "index": "08_impresso_mentions"
       },
       {
         "namespaceId": "entities",
         "serverId": "default",
-        "index": "09_impresso_entities_sandbox"
+        "index": "09_impresso_entities"
       },
       {
         "namespaceId": "collection_items",

@@ -15,6 +15,7 @@ Edit the `.env` file to set the correct secret values for your environment.
 Link production config files and directories:
 
 ```shell
+rm -rf config .env .env.nosecret
 ln -s config_prod config
 ln -s .env.nosecret-prod .env.nosecret
 ln -s .env.prod .env
@@ -166,4 +167,3 @@ When building docker container for the app make sure:
 - `MIDDLELAYER_API_PATH` in `prod.env.js` is set to `'"/api"'` (assuming that middle layer API base URL in `nginx` configuration is `/api`)
 - `MIDDLELAYER_API_SOCKET_PATH` in `prod.env.js` is set to `'"/api/socket.io/"'` (assuming that middle layer API base URL in `nginx` configuration is `/api`)
 - `MIDDLELAYER_MEDIA_PATH` in `prod.env.js` is set to `'"/api/media"'` (assuming that the api base URL in `nginx` configuration is `/api`)
-
