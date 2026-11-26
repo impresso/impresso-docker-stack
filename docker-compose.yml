@@ -172,11 +172,15 @@ services:
       MYSQL_URL: mysql://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOSTNAME}/${DB_DATABASE}
       QDRANT_DB_PATH: /app/data/qdrant_db
       ENVIRONMENT: production
+      KB_BACKEND: meilisearch
+      MEILISEARCH_URL: http://impresso-meilisearch:7700
     env_file:
       - "./.env"
       - "./.env.nosecret"
     depends_on:
       dragonfly:
+        condition: service_healthy
+      meilisearch:
         condition: service_healthy
     logging:
       driver: "fluentd"
@@ -184,6 +188,63 @@ services:
         fluentd-address: localhost:24224
         fluentd-async: "true"
         tag: impresso.barista
+  # One-shot job: populates the Meilisearch knowledge base for barista, then exits.
+  impresso-barista-kb-bootstrap:
+    image: impresso/impresso-barista:${IMPRESSO_BARISTA_TAG:-latest}
+    platform: linux/amd64
+    container_name: impresso-barista-kb-bootstrap
+    restart: "no"
+    init: true
+    profiles:
+      - barista
+    command:
+      [
+        "python", "-m",
+        "impresso_barista.tools.knowledge_base_meilisearch_bootstrap",
+        "--meilisearch-url", "http://impresso-meilisearch:7700",
+      ]
+    environment:
+      ENVIRONMENT: production
+      KB_BACKEND: meilisearch
+      MEILISEARCH_URL: http://impresso-meilisearch:7700
+    env_file:
+      - "./.env"
+      - "./.env.nosecret"
+    depends_on:
+      meilisearch:
+        condition: service_healthy
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async: "true"
+        tag: impresso.barista-kb-bootstrap
+  meilisearch:
+    image: getmeili/meilisearch:${MEILISEARCH_TAG:-v1.56.2}
+    container_name: impresso-meilisearch
+    restart: always
+    init: true
+    profiles:
+      - barista
+    expose:
+      - "7700"
+    environment:
+      MEILI_NO_ANALYTICS: "true"
+      MEILI_DB_PATH: /meili_data/data.ms
+    volumes:
+      - meilisearch-data:/meili_data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:7700/health"]
+      start_period: 5s
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async: "true"
+        tag: impresso.meilisearch
   auth-service:
     image: impresso/impresso-content-auth:${IMPRESSO_AUTH_SERVICE_TAG:-latest}
     platform: linux/amd64
@@ -286,4 +347,5 @@ volumes:
   middle-layer-cache:
   datalab-app-files:
   barista-data:
+  meilisearch-data:
   vector_data:
