@@ -96,12 +96,12 @@
         "baseUrl": "${SOLR_DEV_BASE_URL}",
         "auth": {
           "read": {
-            "username": "${SOLR_READER_USERNAME}",
-            "password": "${SOLR_READER_PASSWORD}"
+            "username": "${SOLR_DEV_READER_USERNAME}",
+            "password": "${SOLR_DEV_READER_PASSWORD}"
           },
           "write": {
-            "username": "${SOLR_WRITER_USERNAME}",
-            "password": "${SOLR_WRITER_PASSWORD}"
+            "username": "${SOLR_DEV_WRITER_USERNAME}",
+            "password": "${SOLR_DEV_WRITER_PASSWORD}"
           }
         }
       }
@@ -110,7 +110,7 @@
       {
         "namespaceId": "search",
         "serverId": "default",
-        "index": "01_impresso_main"
+        "index": "01_impresso_main_test"
       },
       {
         "namespaceId": "topics",
@@ -119,18 +119,18 @@
       },
       {
         "namespaceId": "images",
-        "serverId": "development",
+        "serverId": "default",
         "index": "03_impresso_images_test",
         "schemaVersion": "v2"
       },
       {
         "namespaceId": "tr_clusters",
-        "serverId": "default",
+        "serverId": "development",
         "index": "04_impresso_tr_clusters"
       },
       {
         "namespaceId": "tr_passages",
-        "serverId": "default",
+        "serverId": "development",
         "index": "05_impresso_tr_passages"
       },
       {
@@ -151,16 +151,16 @@
       {
         "namespaceId": "collection_items",
         "serverId": "default",
-        "index": "11_impresso_user_collections"
+        "index": "11_impresso_user_collections_colocated_test"
       },
       {
         "namespaceId": "subdoc_embeddings_experiment",
-        "serverId": "default",
+        "serverId": "development",
         "index": "10_impresso_subdoc_emb_test"
       },
       {
         "namespaceId": "entity_profiles",
-        "serverId": "default",
+        "serverId": "development",
         "index": "12_impresso_entity_profiles_test"
       }
     ]
@@ -172,6 +172,8 @@
     }
   },
   "callbackUrls": {
-    "passwordReset": "https://impresso-project.ch/app/password-reset"
+    "passwordReset": "https://impresso-project.ch/app/password-reset",
+    "magicLink": "https://impresso-project.ch/institutions-access/magic-link",
+    "emailVerification": "https://impresso-project.ch/app/email-verification"
   }
 }

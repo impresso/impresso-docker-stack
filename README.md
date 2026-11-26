@@ -15,6 +15,7 @@ Edit the `.env` file to set the correct secret values for your environment.
 Link production config files and directories:
 
 ```shell
+rm -rf config .env .env.nosecret
 ln -s config_prod config
 ln -s .env.nosecret-prod .env.nosecret
 ln -s .env.prod .env
@@ -23,13 +24,13 @@ ln -s .env.prod .env
 Production servers do not require a proxy.
 
 ```shell
-docker compose  --env-file ./.env.prod --env-file ./.env.nosecret-prod up
+docker compose --env-file ./.env.prod --env-file ./.env.nosecret-prod  -p impresso up
 ```
 
 or
 
 ```shell
-docker compose  --env-file ./.env.prod --env-file ./.env.nosecret-prod --profile barista up -d
+docker compose -p impresso --env-file ./.env.prod --env-file ./.env.nosecret-prod --profile barista  -p impresso up -d
 ```
 
 ## Running in dev (staging)
@@ -122,6 +123,37 @@ We use [Dragonfly](https://dragonflydb.io/) instead of Redis as the in-memory da
 - Max RAM: `2GB`. Hourly RDB snapshots are written to the `dragonfly-data` volume.
 - `--default_lua_flags=allow-undeclared-keys` is required for BullMQ compatibility. Dragonfly enforces strict key declaration in Lua scripts by default; BullMQ constructs keys dynamically inside scripts, which trips this restriction. This flag disables the check at a minor performance cost to Lua calls.
 - On Linux production servers, ensure `io_uring` is not disabled (`/proc/sys/kernel/io_uring_disabled` should be `0`) and the container has `seccomp=unconfined` (already set in `docker-compose.yml`) to allow the necessary syscalls.
+
+### Enabling io_uring on the host VM
+
+Dragonfly's `io_uring` engine requires Linux kernel **5.10 or newer**. Modern distros (Ubuntu 23.10+, Debian 12+) and hardened cloud VM images may disable `io_uring` at the kernel level.
+
+1. Check kernel version and support: `uname -r` must be `5.10.x` or higher, and the following must output `CONFIG_IO_URING=y`:
+
+   ```shell
+   grep CONFIG_IO_URING /boot/config-$(uname -r)
+   ```
+
+   If it says `# CONFIG_IO_URING is not set`, the kernel was compiled without it — install a standard generic kernel (e.g. `linux-image-generic` on Ubuntu/Debian) and reboot.
+
+2. Check whether `io_uring` is blocked via sysctl (a value of `1` or `2` means it is blocked):
+
+   ```shell
+   sysctl kernel.io_uring_disabled
+   ```
+
+3. Enable it and make the setting persistent across reboots:
+
+   ```shell
+   echo "kernel.io_uring_disabled = 0" | sudo tee /etc/sysctl.d/99-io-uring.conf
+   sudo sysctl --system
+   ```
+
+4. **Verification:** re-run `sysctl kernel.io_uring_disabled` — it must return `0`. Then recreate the Dragonfly container and confirm the startup warning is gone:
+
+   ```shell
+   docker compose up -d --force-recreate
+   ```
 
 ## Docker specific configuration notes for components
 
